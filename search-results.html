@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - Vintage Library</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="src/styles/main.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom tooltip styling */
+        .tooltip {
+            font-family: 'Libre Baskerville', serif;
+        }
+        
+        .tooltip .tooltip-inner {
+            background-color: #8b7355;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        .tooltip.bs-tooltip-top .tooltip-arrow::before {
+            border-top-color: #8b7355;
+        }
+
+        .tooltip.bs-tooltip-bottom .tooltip-arrow::before {
+            border-bottom-color: #8b7355;
+        }
+
+        /* Replace the existing card styling with this minimalistic version */
+        .book-card {
+            height: 100%;
+            min-height: 400px;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .book-image-container {
+            position: relative;
+            width: 100%;
+            padding-top: 140%; /* This creates a 1.4:1 aspect ratio */
+            overflow: hidden;
+        }
+
+        .book-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .book-card:hover .book-image {
+            transform: scale(1.05);
+        }
+
+        .book-info {
+            padding: 1.25rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .book-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            line-height: 1.4;
+            color: #2d2d2d;
+            margin: 0;
+        }
+
+        .book-author {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .book-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #8b7355;
+            margin-top: auto;
+            padding-top: 0.75rem;
+            border-top: 1px solid #eee;
+        }
+
+        .book-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+
+        .book-meta i {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Enhanced search bar styling */
+        .search-container {
+            background: linear-gradient(rgba(139, 115, 85, 0.1), rgba(139, 115, 85, 0.05));
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 3rem;
+        }
+
+        .search-input-group {
+            background: white;
+            border-radius: 50px;
+            padding: 0.5rem;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input {
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1.1rem;
+            flex-grow: 1;
+            background: transparent;
+        }
+
+        .search-input:focus {
+            outline: none;
+        }
+
+        /* Updated filter styling */
+        .filter-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-group {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-group:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+
+        .filter-label {
+            font-family: 'Playfair Display', serif;
+            color: #2d2d2d;
+            margin-bottom: 1rem;
+        }
+
+        /* Custom checkbox styling */
+        .custom-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0;
+            cursor: pointer;
+        }
+
+        .custom-checkbox input {
+            display: none;
+        }
+
+        .checkbox-indicator {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #8b7355;
+            border-radius: 4px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .custom-checkbox input:checked + .checkbox-indicator {
+            background-color: #8b7355;
+        }
+
+        .checkbox-indicator:after {
+            content: '✓';
+            color: white;
+            display: none;
+        }
+
+        .custom-checkbox input:checked + .checkbox-indicator:after {
+            display: block;
+        }
+
+        .vintage-btn {
+            background-color: #8b7355;
+            color: white;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .vintage-btn:hover {
+            background-color: #6d5a43;
+            color: white;
+            box-shadow: 0 4px 12px rgba(139, 115, 85, 0.2);
+        }
+
+        .vintage-outline-btn {
+            background-color: transparent;
+            color: #8b7355;
+            border: 2px solid #8b7355;
+        }
+
+        .vintage-outline-btn:hover {
+            background-color: #8b7355;
+            color: white;
+            box-shadow: 0 4px 12px rgba(139, 115, 85, 0.2);
+        }
+
+        .fade-in {
+            opacity: 0;
+            animation: fadeIn 0.5s ease-in forwards;
+            animation-delay: calc(var(--animation-order) * 0.1s);
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        .results-count {
+            color: #8b7355;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .no-results i {
+            color: #8b7355;
+            margin-bottom: 1rem;
+        }
+
+        .book-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #eee;
+        }
+
+        .book-actions button {
+            flex: 1;
+            padding: 0.625rem;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        /* Update the search results container */
+        #searchResults {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            padding: 1rem 0;
+        }
+
+        /* Add a media query for smaller screens */
+        @media (max-width: 576px) {
+            #searchResults {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 1rem;
+            }
+
+            .book-card {
+                min-height: 350px;
+            }
+        }
+
+        /* Favorites Panel Styles */
+        .favorites-panel {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 300px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .favorites-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .favorites-panel {
+            display: block;
+            margin-top: 0.5rem;
+        }
+
+        /* Ensure the panel stays visible when hovering over it */
+        .favorites-panel:hover {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .favorite-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s ease;
+        }
+
+        .favorite-item:hover {
+            background-color: rgba(139, 115, 85, 0.05);
+        }
+
+        .favorite-item:last-child {
+            border-bottom: none;
+        }
+
+        .favorite-item img {
+            width: 40px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 0.75rem;
+        }
+
+        .favorite-item-info {
+            flex-grow: 1;
+        }
+
+        .favorite-item-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.9rem;
+            margin: 0;
+            color: #2d2d2d;
+        }
+
+        .favorite-item-author {
+            font-size: 0.8rem;
+            color: #666;
+            margin: 0;
+        }
+
+        .favorite-item-remove {
+            background: none;
+            border: none;
+            padding: 0.25rem;
+            color: #8b7355;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+        }
+
+        .favorite-item-remove:hover {
+            opacity: 1;
+        }
+
+        .favorites-header {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .favorites-empty {
+            padding: 2rem 1rem;
+            text-align: center;
+            color: #666;
+        }
+
+        .favorites-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #8b7355;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Toast Styles */
+        .toast-container {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            z-index: 1050;
+        }
+
+        .toast {
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            margin-bottom: 0.75rem;
+        }
+
+        .toast-body {
+            padding: 0.75rem 1.25rem;
+        }
+    </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark custom-nav">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <i data-lucide="library" class="me-2"></i>
+                <span class="font-playfair">Vintage Library</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link px-2" href="index.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Home">
+                            <i data-lucide="home"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-2 active" href="search-results.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Browse Books">
+                            <i data-lucide="book-open"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-2" href="categories.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Categories">
+                            <i data-lucide="list"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item favorites-container">
+                        <a class="nav-link px-2 position-relative" href="#" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Favorites" data-bs-auto-close="outside">
+                            <i data-lucide="heart"></i>
+                            <span class="favorites-badge" id="favoritesCount">0</span>
+                        </a>
+                        <div class="favorites-panel">
+                            <div class="favorites-header">
+                                <h6 class="mb-0 font-playfair">Favorite Books</h6>
+                                <small class="text-muted">Recently Added</small>
+                            </div>
+                            <div id="favoritesList">
+                                <!-- Favorite items will be dynamically added here -->
+                            </div>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-2" href="reading-list.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Reading List">
+                            <i data-lucide="list-checks"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-2" href="events.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Events">
+                            <i data-lucide="calendar"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-2" href="gallery.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Gallery">
+                            <i data-lucide="image"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-2" href="reviews.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Reviews">
+                            <i data-lucide="star"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-2" href="add-book.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Book">
+                            <i data-lucide="plus-circle"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-2" href="about.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="About">
+                            <i data-lucide="info"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-2" href="contact.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Contact">
+                            <i data-lucide="mail"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4 flex-grow-1">
+        <div class="search-container">
+            <form id="searchForm" class="mb-4">
+                <div class="search-input-group">
+                    <i data-lucide="search" class="ms-3" style="color: #8b7355;"></i>
+                    <input 
+                        type="text" 
+                        class="search-input" 
+                        id="searchInput" 
+                        placeholder="Search by title, author, genre, or keyword..."
+                    >
+                    <select class="form-select border-0" id="sortSelect" style="width: auto;">
+                        <option value="relevance">Most Relevant</option>
+                        <option value="title">Title (A-Z)</option>
+                        <option value="author">Author (A-Z)</option>
+                        <option value="date">Publication Date</option>
+                        <option value="rating">Highest Rated</option>
+                    </select>
+                    <button type="submit" class="btn vintage-btn rounded-pill px-4 me-2">
+                        Search
+                    </button>
+                </div>
+            </form>
+            <div class="active-filters" id="activeFilters">
+                <!-- Active filters will be displayed here -->
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Filters Sidebar -->
+            <div class="col-lg-3">
+                <div class="filter-section">
+                    <h3 class="filter-heading">Refine Results</h3>
+                    
+                    <div class="filter-group">
+                        <div class="filter-label">Genre</div>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" value="Classic Romance">
+                            <span class="checkbox-indicator"></span>
+                            Classic Romance
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" value="Gothic Fiction">
+                            <span class="checkbox-indicator"></span>
+                            Gothic Fiction
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" value="Mystery">
+                            <span class="checkbox-indicator"></span>
+                            Mystery
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" value="Poetry">
+                            <span class="checkbox-indicator"></span>
+                            Poetry
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" value="Historical Fiction">
+                            <span class="checkbox-indicator"></span>
+                            Historical Fiction
+                        </label>
+                    </div>
+
+                    <div class="filter-group">
+                        <div class="filter-label">Language</div>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" value="English">
+                            <span class="checkbox-indicator"></span>
+                            English
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" value="French">
+                            <span class="checkbox-indicator"></span>
+                            French
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" value="German">
+                            <span class="checkbox-indicator"></span>
+                            German
+                        </label>
+                    </div>
+
+                    <div class="filter-group">
+                        <div class="filter-label">Condition</div>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" value="Excellent">
+                            <span class="checkbox-indicator"></span>
+                            Excellent
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" value="Good">
+                            <span class="checkbox-indicator"></span>
+                            Good
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" value="Fair">
+                            <span class="checkbox-indicator"></span>
+                            Fair
+                        </label>
+                    </div>
+
+                    <div class="filter-group">
+                        <div class="filter-label">Publication Period</div>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" value="1800-1850">
+                            <span class="checkbox-indicator"></span>
+                            1800-1850
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" value="1851-1900">
+                            <span class="checkbox-indicator"></span>
+                            1851-1900
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" value="1901-1950">
+                            <span class="checkbox-indicator"></span>
+                            1901-1950
+                        </label>
+                    </div>
+
+                    <div class="filter-group">
+                        <div class="filter-label">Format</div>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" value="Hardcover">
+                            <span class="checkbox-indicator"></span>
+                            Hardcover
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" value="Leather Bound">
+                            <span class="checkbox-indicator"></span>
+                            Leather Bound
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" value="First Edition">
+                            <span class="checkbox-indicator"></span>
+                            First Edition
+                        </label>
+                    </div>
+
+                    <button class="btn vintage-btn w-100 mt-3" onclick="resetFilters()">
+                        Clear All Filters
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="col-lg-9">
+                <h4 class="results-count mb-4">Showing <span id="resultsCount">0</span> results</h4>
+                <div id="searchResults">
+                    <!-- Results will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="favoritesPanel">
+        <div class="favorites-header">
+            <h5>My Favorites</h5>
+            <button class="close-favorites" onclick="toggleFavorites()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="favoritesList"></div>
+    </div>
+
+    <div class="toast-container"></div>
+
+    <!-- Same Footer as index.html -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="src/js/data.js"></script>
+    <script src="src/js/database.js"></script>
+    <!-- Then your main script -->
+    <script>
+        // Create toast container on load
+        createToastContainer();
+
+        // Initialize tooltips
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Get search parameters from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchQuery = urlParams.get('q');
+        const searchGenre = urlParams.get('genre');
+
+        // Set initial search input value
+        if (searchQuery) {
+            document.getElementById('searchInput').value = searchQuery;
+        }
+
+        // Check genre filter if came from genre link
+        if (searchGenre) {
+            const genreCheckbox = document.querySelector(`input[value="${searchGenre}"]`);
+            if (genreCheckbox) {
+                genreCheckbox.checked = true;
+            }
+        }
+
+        // Replace the existing database-related code with this new version
+        let booksData = [];
+
+        // Function to load books data
+        async function loadBooksData() {
+            try {
+                const response = await fetch('src/data/books.json');
+                const data = await response.json();
+                booksData = data.books;
+                performSearch(); // Initial search after data is loaded
+            } catch (error) {
+                console.error('Error loading books data:', error);
+                showToast('Error loading books data. Please try again later.');
+            }
+        }
+
+        // Update the performSearch function
+        function performSearch() {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            const sortBy = document.getElementById('sortSelect').value;
+            const checkedGenres = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+                .map(cb => cb.value);
+
+            // Filter books based on search query and filters
+            let results = booksData.filter(book => {
+                const matchesQuery = !query || 
+                    book.title.toLowerCase().includes(query) ||
+                    book.author.toLowerCase().includes(query) ||
+                    book.genre.toLowerCase().includes(query) ||
+                    book.description.toLowerCase().includes(query);
+
+                const matchesGenre = checkedGenres.length === 0 || 
+                    checkedGenres.includes(book.genre);
+
+                return matchesQuery && matchesGenre;
+            });
+
+            // Apply sorting
+            results.sort((a, b) => {
+                switch (sortBy) {
+                    case 'title':
+                        return a.title.localeCompare(b.title);
+                    case 'author':
+                        return a.author.localeCompare(b.author);
+                    case 'date':
+                        return new Date(b.publishDate) - new Date(a.publishDate);
+                    case 'rating':
+                        return (b.rating || 0) - (a.rating || 0);
+                    default:
+                        return 0;
+                }
+            });
+
+            // Update results count
+            document.getElementById('resultsCount').textContent = results.length;
+
+            // Render results
+            const resultsContainer = document.getElementById('searchResults');
+            resultsContainer.innerHTML = results.length === 0 ? `
+                <div class="col-12">
+                    <div class="no-results">
+                        <i data-lucide="book-x" style="width: 48px; height: 48px;"></i>
+                        <h3 class="font-playfair">No Results Found</h3>
+                        <p class="text-muted">Try adjusting your search or filters</p>
+                    </div>
+                </div>
+            ` : results.map((book, index) => {
+                return `
+                    <div class="fade-in" style="--animation-order: ${index}">
+                        <div class="book-card">
+                            <div class="book-image-container">
+                                <img src="${book.imageUrl}" alt="${book.title}" class="book-image">
+                            </div>
+                            <div class="book-info">
+                                <h3 class="book-title">${book.title}</h3>
+                                <p class="book-author">by ${book.author}</p>
+                                <div class="book-meta">
+                                    <span><i data-lucide="bookmark"></i> ${book.genre}</span>
+                                    <span><i data-lucide="book-copy"></i> ${book.copiesAvailable} available</span>
+                                </div>
+                                <div class="book-actions">
+                                    <button class="btn vintage-btn" onclick="borrowBook('${book.id}')">
+                                        <i data-lucide="book-marked" class="me-1"></i>
+                                        Borrow
+                                    </button>
+                                    <button class="btn vintage-outline-btn" onclick="toggleFavorite('${book.id}')" 
+                                        title="${book.isFavorite ? 'Remove from favorites' : 'Add to favorites'}">
+                                        <i data-lucide="${book.isFavorite ? 'heart' : 'heart-off'}" class="me-1"></i>
+                                        ${book.isFavorite ? 'Favorited' : 'Favorite'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            lucide.createIcons();
+        }
+
+        // Replace the existing borrowBook function with this
+        async function borrowBook(bookId) {
+            const book = booksData.find(b => b.id === bookId);
+            if (!book) return;
+
+            // Create modal to input total pages
+            const modalHtml = `
+                <div class="modal fade" id="borrowBookModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title font-playfair">Add to Reading List</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Total Pages</label>
+                                    <input type="number" class="form-control" id="totalPages" min="1" value="1">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn vintage-btn" onclick="confirmBorrow('${bookId}')">Add to Reading List</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Add modal to document
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('borrowBookModal'));
+            modal.show();
+
+            // Clean up modal after it's hidden
+            document.getElementById('borrowBookModal').addEventListener('hidden.bs.modal', function() {
+                this.remove();
+            });
+        }
+
+        async function confirmBorrow(bookId) {
+            const book = booksData.find(b => b.id === bookId);
+            const totalPages = parseInt(document.getElementById('totalPages').value);
+
+            if (!book || totalPages < 1) {
+                showToast('Please enter a valid number of pages');
+                return;
+            }
+
+            try {
+                const response = await fetch('src/api/reading-list.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'add',
+                        bookId: bookId,
+                        bookData: {
+                            title: book.title,
+                            author: book.author,
+                            totalPages: totalPages
+                        }
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.message || 'Failed to add book to reading list');
+                }
+
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('borrowBookModal')).hide();
+                
+                // Update UI
+                book.copiesAvailable--;
+                showToast('Book added to your reading list!');
+                performSearch(); // Refresh the display
+            } catch (error) {
+                console.error('Error adding book to reading list:', error);
+                showToast(error.message || 'Error adding book to reading list');
+            }
+        }
+
+        // Update event listeners
+        document.addEventListener('DOMContentLoaded', loadBooksData);
+
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            performSearch();
+        });
+
+        document.getElementById('sortSelect').addEventListener('change', performSearch);
+
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', performSearch);
+        });
+
+        function resetFilters() {
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            document.getElementById('sortSelect').value = 'relevance';
+            performSearch();
+        }
+
+        // Initial search
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof window.db === 'undefined') {
+                console.error('Database not initialized');
+                return;
+            }
+            performSearch();
+        });
+
+        // Add this right after your existing DOMContentLoaded event listener
+        window.addEventListener('load', function() {
+            // Ensure database is loaded
+            if (typeof window.db !== 'undefined') {
+                performSearch();
+            } else {
+                // If database isn't loaded yet, wait a bit and try again
+                setTimeout(performSearch, 500);
+            }
+        });
+
+        // Add these functions back before the loadBooksData function
+        function showToast(message) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+            const toast = document.createElement('div');
+            toast.className = 'toast show';
+            toast.innerHTML = `
+                <div class="toast-body">
+                    ${message}
+                </div>
+            `;
+            toastContainer.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        function createToastContainer() {
+            const container = document.createElement('div');
+            container.id = 'toastContainer';
+            container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+            document.body.appendChild(container);
+            return container;
+        }
+
+        // Function to toggle favorite
+        async function toggleFavorite(bookId) {
+            const book = booksData.find(b => b.id === bookId);
+            if (!book) return;
+
+            try {
+                const response = await fetch('src/api/favorites.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        bookId: book.id,
+                        action: 'toggle',
+                        bookData: {
+                            title: book.title,
+                            author: book.author,
+                            imageUrl: book.imageUrl
+                        }
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.message || 'Failed to toggle favorite');
+                }
+
+                updateFavoritesPanel();
+                showToast(data.message);
+                performSearch(); // Refresh the display
+            } catch (error) {
+                console.error('Error toggling favorite:', error);
+                showToast('Error updating favorites');
+            }
+        }
+
+        // Function to update favorites panel
+        async function updateFavoritesPanel() {
+            try {
+                const response = await fetch('src/api/favorites.php');
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.message || 'Failed to load favorites');
+                }
+
+                const favorites = data.favorites;
+                const favoritesList = document.getElementById('favoritesList');
+                const favoritesCount = document.getElementById('favoritesCount');
+                
+                // Update badge count
+                favoritesCount.textContent = favorites.length;
+                
+                if (favorites.length === 0) {
+                    favoritesList.innerHTML = `
+                        <div class="favorites-empty">
+                            <i data-lucide="heart-off" class="mb-2"></i>
+                            <p class="mb-0">No favorite books yet</p>
+                        </div>
+                    `;
+                    lucide.createIcons();
+                    return;
+                }
+
+                favoritesList.innerHTML = favorites
+                    .slice(0, 5) // Show only last 5 favorites
+                    .map(book => `
+                        <div class="favorite-item">
+                            <img src="${book.imageUrl}" alt="${book.title}">
+                            <div class="favorite-item-info">
+                                <h6 class="favorite-item-title">${book.title}</h6>
+                                <p class="favorite-item-author">${book.author}</p>
+                            </div>
+                            <button class="favorite-item-remove" onclick="removeFavorite('${book.id}')">
+                                <i data-lucide="x"></i>
+                            </button>
+                        </div>
+                    `).join('');
+
+                lucide.createIcons();
+            } catch (error) {
+                console.error('Error updating favorites panel:', error);
+                showToast('Error loading favorites');
+            }
+        }
+
+        // Update the DOMContentLoaded event listener
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Lucide icons
+            lucide.createIcons();
+            
+            // Load books data
+            loadBooksData();
+            
+            // Initialize tooltips with updated options
+            const tooltipOptions = {
+                trigger: 'hover',
+                placement: 'bottom',
+                container: 'body'
+            };
+            
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => 
+                new bootstrap.Tooltip(tooltipTriggerEl, tooltipOptions)
+            );
+
+            // Update favorites panel
+            updateFavoritesPanel();
+        });
+    </script>
+</body>
+</html>

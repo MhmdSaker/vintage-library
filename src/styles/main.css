@@ -1,0 +1,688 @@
+/* Base Styles */
+body {
+    font-family: 'Libre Baskerville', serif;
+    background-color: #F5DEB3;
+    background-image: linear-gradient(rgba(222, 184, 135, 0.1) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(222, 184, 135, 0.1) 1px, transparent 1px);
+    background-size: 24px 24px;
+    color: #8B4513;
+}
+
+.font-playfair {
+    font-family: 'Playfair Display', serif;
+}
+
+/* Navigation */
+.custom-nav {
+    background-color: #8B4513;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Search Container */
+.search-container {
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #8B4513;
+}
+
+/* Book Card */
+.book-card {
+    background-color: rgba(245, 222, 179, 0.9);
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(139, 69, 19, 0.1);
+    transition: all 0.3s ease;
+}
+
+.book-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(139, 69, 19, 0.2);
+}
+
+.book-image-wrapper {
+    position: relative;
+    overflow: hidden;
+    padding-top: 140%; /* Aspect ratio for book covers */
+}
+
+.book-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.book-card:hover .book-image {
+    transform: scale(1.1);
+}
+
+.book-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(139, 69, 19, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.book-card:hover .book-overlay {
+    opacity: 1;
+}
+
+.book-actions {
+    display: flex;
+    gap: 1rem;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.book-card:hover .book-actions {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.action-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: #F5DEB3;
+    color: #8B4513;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.action-btn:hover {
+    background: #DEB887;
+    transform: scale(1.1);
+}
+
+.action-btn i {
+    width: 20px;
+    height: 20px;
+}
+
+.book-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(139, 69, 19, 0.9);
+    color: #F5DEB3;
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    backdrop-filter: blur(4px);
+}
+
+.book-info {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(4px);
+}
+
+.book-title {
+    color: #8B4513;
+    font-weight: 600;
+}
+
+.book-author {
+    font-style: italic;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+}
+
+/* Custom Button */
+.vintage-btn {
+    background-color: #8B4513;
+    color: #F5DEB3;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.vintage-btn:hover {
+    background-color: #A0522D;
+    color: #F5DEB3;
+}
+
+/* Footer Styles */
+footer {
+    background-color: #8B4513 !important;
+}
+
+footer a:hover {
+    color: #DEB887 !important;
+}
+
+footer hr {
+    border-color: rgba(245, 222, 179, 0.1);
+}
+
+footer i {
+    width: 18px;
+    height: 18px;
+}
+
+footer .social-links a {
+    transition: transform 0.3s ease;
+}
+
+footer .social-links a:hover {
+    transform: translateY(-3px);
+}
+
+/* Add to Navigation section */
+.nav-link.active {
+    background-color: rgba(245, 222, 179, 0.1);
+    border-radius: 0.5rem;
+}
+
+.nav-link:hover {
+    background-color: rgba(245, 222, 179, 0.05);
+    border-radius: 0.5rem;
+}
+
+/* Category Cards */
+.category-card {
+    transition: transform 0.3s ease;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Event Cards */
+.event-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.date-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: #8B4513;
+    color: #F5DEB3;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+}
+
+/* Profile Styles */
+.profile-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin: 0 auto;
+    background: #8B4513;
+    color: #F5DEB3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+}
+
+/* Rating Stars */
+.rating-stars {
+    color: #8B4513;
+    font-size: 1.5rem;
+}
+
+/* Add to Navigation section */
+.navbar .nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+    transition: background-color 0.3s ease;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link.active {
+    background-color: rgba(245, 222, 179, 0.1);
+}
+
+.navbar i {
+    width: 20px;
+    height: 20px;
+}
+
+/* Tooltip customization */
+.tooltip .tooltip-inner {
+    background-color: #8B4513;
+    font-family: 'Libre Baskerville', serif;
+}
+
+.tooltip.bs-tooltip-bottom .tooltip-arrow::before {
+    border-bottom-color: #8B4513;
+}
+
+/* Search Styles */
+.search-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.search-container {
+    position: relative;
+    width: 100%;
+}
+
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border-radius: 2rem;
+    padding: 0.5rem;
+    box-shadow: 0 4px 6px rgba(139, 69, 19, 0.1);
+    border: 2px solid rgba(139, 69, 19, 0.1);
+    transition: all 0.3s ease;
+}
+
+.search-box:focus-within {
+    box-shadow: 0 6px 12px rgba(139, 69, 19, 0.15);
+    border-color: rgba(139, 69, 19, 0.3);
+}
+
+.search-icon {
+    color: #8B4513;
+    width: 20px;
+    height: 20px;
+    margin: 0 0.75rem;
+}
+
+.search-input {
+    flex-grow: 1;
+    border: none;
+    background: none;
+    padding: 0.75rem;
+    font-family: 'Libre Baskerville', serif;
+    color: #8B4513;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.search-input::placeholder {
+    color: rgba(139, 69, 19, 0.5);
+    opacity: 1;
+}
+
+.search-input:focus {
+    text-align: left;
+    outline: none;
+    box-shadow: none;
+}
+
+.search-input:not(:placeholder-shown) {
+    text-align: left;
+}
+
+.search-filters {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0 0.75rem;
+    border-left: 2px solid rgba(139, 69, 19, 0.1);
+}
+
+.filter-btn,
+.sort-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #8B4513;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover,
+.sort-btn:hover {
+    background-color: rgba(139, 69, 19, 0.1);
+    color: #8B4513;
+}
+
+.filter-btn i,
+.sort-btn i {
+    width: 20px;
+    height: 20px;
+}
+
+.search-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem;
+}
+
+.search-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    background-color: rgba(139, 69, 19, 0.1);
+    color: #8B4513;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+}
+
+.search-tag i {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+/* Dropdown customization */
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 4px 6px rgba(139, 69, 19, 0.1);
+    border-radius: 0.5rem;
+}
+
+.dropdown-item {
+    color: #8B4513;
+    padding: 0.75rem 1rem;
+    font-family: 'Libre Baskerville', serif;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(139, 69, 19, 0.1);
+    color: #8B4513;
+}
+
+/* Updated Footer Styles */
+.footer {
+    background-color: #8B4513;
+    color: #F5DEB3;
+}
+
+.footer-top {
+    background-color: #8B4513;
+    position: relative;
+}
+
+.footer-top::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #DEB887, transparent);
+}
+
+.footer-logo {
+    width: 32px;
+    height: 32px;
+}
+
+.footer h3 {
+    font-size: 1.75rem;
+}
+
+.footer h4 {
+    font-size: 1.25rem;
+    color: #DEB887;
+}
+
+.social-links {
+    display: flex;
+    gap: 1rem;
+}
+
+.social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(222, 184, 135, 0.1);
+    color: #F5DEB3;
+    transition: all 0.3s ease;
+}
+
+.social-link:hover {
+    background-color: #DEB887;
+    color: #8B4513;
+    transform: translateY(-3px);
+}
+
+.social-link i {
+    width: 20px;
+    height: 20px;
+}
+
+.footer-links,
+.footer-hours,
+.footer-contact {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-links li,
+.footer-hours li,
+.footer-contact li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.footer-links a {
+    color: #F5DEB3;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+    color: #DEB887;
+}
+
+.footer-hours li {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+}
+
+.footer-hours i,
+.footer-contact i {
+    width: 18px;
+    height: 18px;
+    color: #DEB887;
+}
+
+.footer-bottom {
+    background-color: rgba(0, 0, 0, 0.1);
+    font-size: 0.875rem;
+}
+
+.footer-bottom i {
+    width: 14px;
+    height: 14px;
+}
+
+/* Animation for social links */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.social-link:hover i {
+    animation: pulse 1s infinite;
+}
+
+/* Review Styles */
+.review-card {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+.review-card:hover {
+    transform: translateY(-3px);
+}
+
+.review-avatar {
+    width: 48px;
+    height: 48px;
+    background: rgba(139, 69, 19, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rating-input {
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 0.25rem;
+}
+
+.rating-input input {
+    display: none;
+}
+
+.rating-input label {
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #DEB887;
+    transition: color 0.3s ease;
+}
+
+.rating-input label:hover,
+.rating-input label:hover ~ label,
+.rating-input input:checked ~ label {
+    color: #8B4513;
+}
+
+/* Events Page Styles */
+.event-card {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.event-card:hover {
+    transform: translateY(-5px);
+}
+
+.event-date {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: #8B4513;
+    color: #F5DEB3;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-family: 'Playfair Display', serif;
+}
+
+.event-image {
+    height: 200px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+}
+
+/* Add Book Form Styles */
+.form-floating > label {
+    color: rgba(139, 69, 19, 0.7);
+}
+
+.form-control:focus {
+    border-color: #DEB887;
+    box-shadow: 0 0 0 0.25rem rgba(222, 184, 135, 0.25);
+}
+
+.form-select:focus {
+    border-color: #DEB887;
+    box-shadow: 0 0 0 0.25rem rgba(222, 184, 135, 0.25);
+}
+
+/* Contact Page Styles */
+.contact-info-card {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 1rem;
+    padding: 2rem;
+    height: 100%;
+    transition: transform 0.3s ease;
+}
+
+.contact-info-card:hover {
+    transform: translateY(-5px);
+}
+
+.contact-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(139, 69, 19, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.contact-icon i {
+    color: #8B4513;
+}
+
+/* Favorites Page Styles */
+.favorite-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(220, 53, 69, 0.9);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+} 

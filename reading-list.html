@@ -1,351 +1,450 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Reading List - Vintage Library</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="src/styles/main.css">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Libre+Baskerville:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="src/styles/main.css" />
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        .reading-list-item {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            margin-bottom: 1rem;
-        }
+      .reading-list-item {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        margin-bottom: 1rem;
+      }
 
-        .reading-list-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(139, 115, 85, 0.15);
-        }
+      .reading-list-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(139, 115, 85, 0.15);
+      }
 
-        .reading-list-item.completed {
-            background-color: #f8f9fa;
-            border-left: 4px solid #8b7355;
-        }
+      .reading-list-item.completed {
+        background-color: #f8f9fa;
+        border-left: 4px solid #8b7355;
+      }
 
-        .book-progress {
-            height: 8px;
-            background-color: #e9ecef;
-            border-radius: 4px;
-        }
+      .book-progress {
+        height: 8px;
+        background-color: #e9ecef;
+        border-radius: 4px;
+      }
 
-        .book-progress .progress-bar {
-            background-color: #8b7355;
-            border-radius: 4px;
-        }
+      .book-progress .progress-bar {
+        background-color: #8b7355;
+        border-radius: 4px;
+      }
 
-        .book-status {
-            font-size: 0.875rem;
-            padding: 0.25rem 0.75rem;
-            border-radius: 50px;
-            background-color: rgba(139, 115, 85, 0.1);
-            color: #8b7355;
-        }
+      .book-status {
+        font-size: 0.875rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        background-color: rgba(139, 115, 85, 0.1);
+        color: #8b7355;
+      }
 
-        .book-status.completed {
-            background-color: rgba(40, 167, 69, 0.1);
-            color: #28a745;
-        }
+      .book-status.completed {
+        background-color: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+      }
 
-        .page-input {
-            width: 80px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            padding: 0.375rem 0.75rem;
-        }
+      .page-input {
+        width: 80px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 0.375rem 0.75rem;
+      }
 
-        .vintage-card {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            padding: 1.5rem;
-        }
+      .vintage-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+      }
 
-        .stats-number {
-            font-size: 2rem;
-            font-family: 'Playfair Display', serif;
-            color: #8b7355;
-        }
+      .stats-number {
+        font-size: 2rem;
+        font-family: "Playfair Display", serif;
+        color: #8b7355;
+      }
 
-        .stats-label {
-            font-size: 0.875rem;
-            color: #6c757d;
-        }
+      .stats-label {
+        font-size: 0.875rem;
+        color: #6c757d;
+      }
 
-        /* Favorites Panel Styles */
-        .favorites-panel {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            width: 300px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(10px);
-            transition: all 0.3s ease;
-            z-index: 1000;
-            max-height: 400px;
-            overflow-y: auto;
-        }
+      /* Favorites Panel Styles */
+      .favorites-panel {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        width: 300px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: all 0.3s ease;
+        z-index: 1000;
+        max-height: 400px;
+        overflow-y: auto;
+      }
 
-        .favorites-container {
-            position: relative;
-        }
+      .favorites-container {
+        position: relative;
+      }
 
-        .favorites-container:hover .favorites-panel {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
+      .favorites-container:hover .favorites-panel {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
 
-        .favorite-item {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem;
-            border-bottom: 1px solid #eee;
-            transition: background-color 0.2s ease;
-        }
+      .favorite-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem;
+        border-bottom: 1px solid #eee;
+        transition: background-color 0.2s ease;
+      }
 
-        .favorite-item:hover {
-            background-color: rgba(139, 115, 85, 0.05);
-        }
+      .favorite-item:hover {
+        background-color: rgba(139, 115, 85, 0.05);
+      }
 
-        .favorite-item:last-child {
-            border-bottom: none;
-        }
+      .favorite-item:last-child {
+        border-bottom: none;
+      }
 
-        .favorite-item img {
-            width: 40px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 4px;
-            margin-right: 0.75rem;
-        }
+      .favorite-item img {
+        width: 40px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 4px;
+        margin-right: 0.75rem;
+      }
 
-        .favorite-item-info {
-            flex-grow: 1;
-        }
+      .favorite-item-info {
+        flex-grow: 1;
+      }
 
-        .favorite-item-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 0.9rem;
-            margin: 0;
-            color: #2d2d2d;
-        }
+      .favorite-item-title {
+        font-family: "Playfair Display", serif;
+        font-size: 0.9rem;
+        margin: 0;
+        color: #2d2d2d;
+      }
 
-        .favorite-item-author {
-            font-size: 0.8rem;
-            color: #666;
-            margin: 0;
-        }
+      .favorite-item-author {
+        font-size: 0.8rem;
+        color: #666;
+        margin: 0;
+      }
 
-        .favorite-item-remove {
-            background: none;
-            border: none;
-            padding: 0.25rem;
-            color: #8b7355;
-            cursor: pointer;
-            opacity: 0.7;
-            transition: opacity 0.2s ease;
-        }
+      .favorite-item-remove {
+        background: none;
+        border: none;
+        padding: 0.25rem;
+        color: #8b7355;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: opacity 0.2s ease;
+      }
 
-        .favorite-item-remove:hover {
-            opacity: 1;
-        }
+      .favorite-item-remove:hover {
+        opacity: 1;
+      }
 
-        .favorites-header {
-            padding: 1rem;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+      .favorites-header {
+        padding: 1rem;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
 
-        .favorites-empty {
-            padding: 2rem 1rem;
-            text-align: center;
-            color: #666;
-        }
+      .favorites-empty {
+        padding: 2rem 1rem;
+        text-align: center;
+        color: #666;
+      }
 
-        .favorites-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background-color: #8b7355;
-            color: white;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            font-size: 0.7rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+      .favorites-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background-color: #8b7355;
+        color: white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        font-size: 0.7rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     </style>
-</head>
-<body class="d-flex flex-column min-vh-100">
+  </head>
+  <body class="d-flex flex-column min-vh-100">
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark custom-nav">
-        <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="index.html">
-                <i data-lucide="library" class="me-2"></i>
-                <span class="font-playfair">Vintage Library</span>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link px-2" href="index.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Home">
-                            <i data-lucide="home"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-2" href="search-results.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Browse Books">
-                            <i data-lucide="book-open"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-2" href="categories.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Categories">
-                            <i data-lucide="list"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item favorites-container">
-                        <a class="nav-link px-2 position-relative" href="#" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Favorites">
-                            <i data-lucide="heart"></i>
-                            <span class="favorites-badge" id="favoritesCount">0</span>
-                        </a>
-                        <div class="favorites-panel">
-                            <div class="favorites-header">
-                                <h6 class="mb-0 font-playfair">Favorite Books</h6>
-                                <small class="text-muted">Recently Added</small>
-                            </div>
-                            <div id="favoritesList">
-                                <!-- Favorite items will be dynamically added here -->
-                            </div>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-2 active" href="reading-list.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Reading List">
-                            <i data-lucide="list-checks"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-2" href="events.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Events">
-                            <i data-lucide="calendar"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-2" href="gallery.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Gallery">
-                            <i data-lucide="image"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-2" href="reviews.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Reviews">
-                            <i data-lucide="star"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-2" href="add-book.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Book">
-                            <i data-lucide="plus-circle"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-2" href="about.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="About">
-                            <i data-lucide="info"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-2" href="contact.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Contact">
-                            <i data-lucide="mail"></i>
-                        </a>
-                    </li>
-                </ul>
-            </div>
+      <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="index.html">
+          <i data-lucide="library" class="me-2"></i>
+          <span class="font-playfair">Vintage Library</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+              <a
+                class="nav-link px-2"
+                href="index.html"
+                data-bs-toggle="tooltip"
+                data-bs-placement="bottom"
+                title="Home"
+              >
+                <i data-lucide="home"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link px-2"
+                href="search-results.html"
+                data-bs-toggle="tooltip"
+                data-bs-placement="bottom"
+                title="Browse Books"
+              >
+                <i data-lucide="book-open"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link px-2"
+                href="categories.html"
+                data-bs-toggle="tooltip"
+                data-bs-placement="bottom"
+                title="Categories"
+              >
+                <i data-lucide="list"></i>
+              </a>
+            </li>
+            <li class="nav-item favorites-container">
+              <a
+                class="nav-link px-2 position-relative"
+                href="#"
+                data-bs-toggle="tooltip"
+                data-bs-placement="bottom"
+                title="Favorites"
+              >
+                <i data-lucide="heart"></i>
+                <span class="favorites-badge" id="favoritesCount">0</span>
+              </a>
+              <div class="favorites-panel">
+                <div class="favorites-header">
+                  <h6 class="mb-0 font-playfair">Favorite Books</h6>
+                  <small class="text-muted">Recently Added</small>
+                </div>
+                <div id="favoritesList">
+                  <!-- Favorite items will be dynamically added here -->
+                </div>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link px-2 active"
+                href="reading-list.html"
+                data-bs-toggle="tooltip"
+                data-bs-placement="bottom"
+                title="Reading List"
+              >
+                <i data-lucide="list-checks"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link px-2"
+                href="events.html"
+                data-bs-toggle="tooltip"
+                data-bs-placement="bottom"
+                title="Events"
+              >
+                <i data-lucide="calendar"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link px-2"
+                href="gallery.html"
+                data-bs-toggle="tooltip"
+                data-bs-placement="bottom"
+                title="Gallery"
+              >
+                <i data-lucide="image"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link px-2"
+                href="reviews.html"
+                data-bs-toggle="tooltip"
+                data-bs-placement="bottom"
+                title="Reviews"
+              >
+                <i data-lucide="star"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link px-2"
+                href="add-book.html"
+                data-bs-toggle="tooltip"
+                data-bs-placement="bottom"
+                title="Add Book"
+              >
+                <i data-lucide="plus-circle"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link px-2"
+                href="about.html"
+                data-bs-toggle="tooltip"
+                data-bs-placement="bottom"
+                title="About"
+              >
+                <i data-lucide="info"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link px-2"
+                href="contact.html"
+                data-bs-toggle="tooltip"
+                data-bs-placement="bottom"
+                title="Contact"
+              >
+                <i data-lucide="mail"></i>
+              </a>
+            </li>
+          </ul>
         </div>
+      </div>
     </nav>
 
     <main class="container py-4">
-        <div class="row mb-4">
-            <div class="col-md-8">
-                <h1 class="font-playfair mb-4">My Reading List</h1>
-            </div>
-            <div class="col-md-4 text-md-end">
-                <button class="btn vintage-btn" onclick="addToReadingList()">
-                    <i data-lucide="plus" class="me-2"></i>
-                    Add Book
-                </button>
-            </div>
+      <div class="row mb-4">
+        <div class="col-md-8">
+          <h1 class="font-playfair mb-4">My Reading List</h1>
         </div>
+        <div class="col-md-4 text-md-end">
+          <button class="btn vintage-btn" onclick="addToReadingList()">
+            <a class="nav-link" href="add-book.html"
+              >Add Book<i data-lucide="plus" class="ms-2"></i
+            ></a>
+          </button>
+        </div>
+      </div>
 
-        <div class="row">
-            <div class="col-md-8">
-                <div id="readingList">
-                    <!-- Reading list items will be dynamically added here -->
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="vintage-card mb-4">
-                    <h3 class="font-playfair h5 mb-4">Reading Stats</h3>
-                    <div class="row text-center g-3">
-                        <div class="col-6">
-                            <div class="stats-number" id="totalBooks">0</div>
-                            <div class="stats-label">Total Books</div>
-                        </div>
-                        <div class="col-6">
-                            <div class="stats-number" id="completedBooks">0</div>
-                            <div class="stats-label">Completed</div>
-                        </div>
-                        <div class="col-12">
-                            <div class="mt-3">
-                                <div class="d-flex justify-content-between mb-2">
-                                    <small>Overall Progress</small>
-                                    <small id="overallProgress">0%</small>
-                                </div>
-                                <div class="progress" style="height: 8px;">
-                                    <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      <div class="row">
+        <div class="col-md-8">
+          <div id="readingList">
+            <!-- Reading list items will be dynamically added here -->
+          </div>
         </div>
+        <div class="col-md-4">
+          <div class="vintage-card mb-4">
+            <h3 class="font-playfair h5 mb-4">Reading Stats</h3>
+            <div class="row text-center g-3">
+              <div class="col-6">
+                <div class="stats-number" id="totalBooks">0</div>
+                <div class="stats-label">Total Books</div>
+              </div>
+              <div class="col-6">
+                <div class="stats-number" id="completedBooks">0</div>
+                <div class="stats-label">Completed</div>
+              </div>
+              <div class="col-12">
+                <div class="mt-3">
+                  <div class="d-flex justify-content-between mb-2">
+                    <small>Overall Progress</small>
+                    <small id="overallProgress">0%</small>
+                  </div>
+                  <div class="progress" style="height: 8px">
+                    <div
+                      class="progress-bar"
+                      id="progressBar"
+                      role="progressbar"
+                      style="width: 0%"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
 
     <!-- Add Book Modal -->
     <div class="modal fade" id="addBookModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title font-playfair">Add to Reading List</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Select Book</label>
-                        <select class="form-select" id="bookSelect">
-                            <!-- Options will be populated dynamically -->
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Total Pages</label>
-                        <input type="number" class="form-control" id="totalPages">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn vintage-btn" onclick="confirmAddBook()">Add Book</button>
-                </div>
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title font-playfair">Add to Reading List</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Select Book</label>
+              <select class="form-select" id="bookSelect">
+                <!-- Options will be populated dynamically -->
+              </select>
             </div>
+            <div class="mb-3">
+              <label class="form-label">Total Pages</label>
+              <input type="number" class="form-control" id="totalPages" />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn vintage-btn"
+              onclick="confirmAddBook()"
+            >
+              Add Book
+            </button>
+          </div>
         </div>
+      </div>
     </div>
 
     <div class="toast-container"></div>
@@ -354,48 +453,53 @@
     <script src="src/js/data.js"></script>
     <script src="src/js/database.js"></script>
     <script>
-        // Initialize tooltips and icons
-        document.addEventListener('DOMContentLoaded', async function() {
-            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
-            lucide.createIcons();
+      // Initialize tooltips and icons
+      document.addEventListener("DOMContentLoaded", async function () {
+        const tooltipTriggerList = document.querySelectorAll(
+          '[data-bs-toggle="tooltip"]'
+        );
+        const tooltipList = [...tooltipTriggerList].map(
+          (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl)
+        );
+        lucide.createIcons();
 
-            // Initial load of reading list and favorites
-            await loadReadingList();
-            await updateFavoritesPanel();
-        });
+        // Initial load of reading list and favorites
+        await loadReadingList();
+        await updateFavoritesPanel();
+      });
 
-        // Add this function for favorites panel
-        async function updateFavoritesPanel() {
-            try {
-                const response = await fetch('src/api/favorites.php');
-                const data = await response.json();
-                
-                if (!data.success) {
-                    throw new Error(data.message || 'Failed to load favorites');
-                }
+      // Add this function for favorites panel
+      async function updateFavoritesPanel() {
+        try {
+          const response = await fetch("src/api/favorites.php");
+          const data = await response.json();
 
-                const favorites = data.favorites;
-                const favoritesList = document.getElementById('favoritesList');
-                const favoritesCount = document.getElementById('favoritesCount');
-                
-                // Update badge count
-                favoritesCount.textContent = favorites.length;
-                
-                if (favorites.length === 0) {
-                    favoritesList.innerHTML = `
+          if (!data.success) {
+            throw new Error(data.message || "Failed to load favorites");
+          }
+
+          const favorites = data.favorites;
+          const favoritesList = document.getElementById("favoritesList");
+          const favoritesCount = document.getElementById("favoritesCount");
+
+          // Update badge count
+          favoritesCount.textContent = favorites.length;
+
+          if (favorites.length === 0) {
+            favoritesList.innerHTML = `
                         <div class="favorites-empty">
                             <i data-lucide="heart-off" class="mb-2"></i>
                             <p class="mb-0">No favorite books yet</p>
                         </div>
                     `;
-                    lucide.createIcons();
-                    return;
-                }
+            lucide.createIcons();
+            return;
+          }
 
-                favoritesList.innerHTML = favorites
-                    .slice(0, 5) // Show only last 5 favorites
-                    .map(book => `
+          favoritesList.innerHTML = favorites
+            .slice(0, 5) // Show only last 5 favorites
+            .map(
+              (book) => `
                         <div class="favorite-item">
                             <img src="${book.imageUrl}" alt="${book.title}">
                             <div class="favorite-item-info">
@@ -406,166 +510,197 @@
                                 <i data-lucide="x"></i>
                             </button>
                         </div>
-                    `).join('');
+                    `
+            )
+            .join("");
 
-                lucide.createIcons();
-            } catch (error) {
-                console.error('Error loading favorites:', error);
-                showToast('Error loading favorites');
-            }
+          lucide.createIcons();
+        } catch (error) {
+          console.error("Error loading favorites:", error);
+          showToast("Error loading favorites");
         }
+      }
 
-        // Add this function for removing favorites
-        async function removeFavorite(bookId) {
-            try {
-                const response = await fetch('src/api/favorites.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        bookId: bookId,
-                        action: 'remove'
-                    })
-                });
+      // Add this function for removing favorites
+      async function removeFavorite(bookId) {
+        try {
+          const response = await fetch("src/api/favorites.php", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              bookId: bookId,
+              action: "remove",
+            }),
+          });
 
-                const data = await response.json();
-                
-                if (!data.success) {
-                    throw new Error(data.message || 'Failed to remove favorite');
-                }
+          const data = await response.json();
 
-                updateFavoritesPanel();
-                showToast('Book removed from favorites');
-            } catch (error) {
-                console.error('Error removing favorite:', error);
-                showToast('Error removing book from favorites');
-            }
+          if (!data.success) {
+            throw new Error(data.message || "Failed to remove favorite");
+          }
+
+          updateFavoritesPanel();
+          showToast("Book removed from favorites");
+        } catch (error) {
+          console.error("Error removing favorite:", error);
+          showToast("Error removing book from favorites");
         }
+      }
 
-        // Keep the existing reading list functions
-        async function loadReadingList() {
-            try {
-                const response = await fetch('src/api/reading-list.php');
-                const data = await response.json();
-                
-                if (!data.success) {
-                    throw new Error(data.message || 'Failed to load reading list');
-                }
+      // Keep the existing reading list functions
+      async function loadReadingList() {
+        try {
+          const response = await fetch("src/api/reading-list.php");
+          const data = await response.json();
 
-                renderReadingList(data.books);
-            } catch (error) {
-                console.error('Error loading reading list:', error);
-                showToast('Error loading reading list');
-            }
+          if (!data.success) {
+            throw new Error(data.message || "Failed to load reading list");
+          }
+
+          renderReadingList(data.books);
+        } catch (error) {
+          console.error("Error loading reading list:", error);
+          showToast("Error loading reading list");
         }
+      }
 
-        function renderReadingList(books) {
-            const container = document.getElementById('readingList');
-            
-            if (!books || books.length === 0) {
-                container.innerHTML = `
+      function renderReadingList(books) {
+        const container = document.getElementById("readingList");
+
+        if (!books || books.length === 0) {
+          container.innerHTML = `
                     <div class="text-center py-5">
                         <i data-lucide="book-x" class="mb-3" style="width: 48px; height: 48px; color: #8b7355;"></i>
                         <h3 class="font-playfair">No Books in Reading List</h3>
                         <p class="text-muted">Start adding books to your reading list!</p>
                     </div>
                 `;
-                lucide.createIcons();
-                updateStats(books);
-                return;
-            }
+          lucide.createIcons();
+          updateStats(books);
+          return;
+        }
 
-            container.innerHTML = books.map(book => `
-                <div class="reading-list-item p-3 ${book.completed ? 'completed' : ''}">
+        container.innerHTML = books
+          .map(
+            (book) => `
+                <div class="reading-list-item p-3 ${
+                  book.completed ? "completed" : ""
+                }">
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <div>
                             <h5 class="font-playfair mb-1">${book.title}</h5>
                             <p class="text-muted mb-0">${book.author}</p>
                         </div>
-                        <span class="book-status ${book.completed ? 'completed' : ''}">
-                            ${book.completed ? 'Completed' : 'In Progress'}
+                        <span class="book-status ${
+                          book.completed ? "completed" : ""
+                        }">
+                            ${book.completed ? "Completed" : "In Progress"}
                         </span>
                     </div>
                     <div class="row align-items-center">
                         <div class="col">
                             <div class="book-progress">
-                                <div class="progress-bar" style="width: ${(book.currentPage / book.totalPages) * 100}%"></div>
+                                <div class="progress-bar" style="width: ${
+                                  (book.currentPage / book.totalPages) * 100
+                                }%"></div>
                             </div>
                         </div>
                         <div class="col-auto">
                             <div class="d-flex align-items-center gap-2">
                                 <input type="number" class="page-input" 
                                     value="${book.currentPage}" 
-                                    onchange="updateProgress('${book.id}', this.value, ${book.totalPages})"
+                                    onchange="updateProgress('${
+                                      book.id
+                                    }', this.value, ${book.totalPages})"
                                     min="0" max="${book.totalPages}">
-                                <span class="text-muted">of ${book.totalPages}</span>
+                                <span class="text-muted">of ${
+                                  book.totalPages
+                                }</span>
                             </div>
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `
+          )
+          .join("");
 
-            updateStats(books);
+        updateStats(books);
+      }
+
+      async function updateProgress(bookId, newPage, totalPages) {
+        try {
+          const currentPage = Math.min(
+            Math.max(0, parseInt(newPage)),
+            totalPages
+          );
+          const completed = currentPage === totalPages;
+
+          const response = await fetch("src/api/reading-list.php", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              action: "update",
+              bookId: bookId,
+              currentPage: currentPage,
+              completed: completed,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (!data.success) {
+            throw new Error(data.message || "Failed to update progress");
+          }
+
+          await loadReadingList();
+          showToast("Progress updated");
+        } catch (error) {
+          console.error("Error updating progress:", error);
+          showToast("Error updating progress");
         }
+      }
 
-        async function updateProgress(bookId, newPage, totalPages) {
-            try {
-                const currentPage = Math.min(Math.max(0, parseInt(newPage)), totalPages);
-                const completed = currentPage === totalPages;
+      function updateStats(books) {
+        if (!books) books = [];
 
-                const response = await fetch('src/api/reading-list.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        action: 'update',
-                        bookId: bookId,
-                        currentPage: currentPage,
-                        completed: completed
-                    })
-                });
+        const total = books.length;
+        const completed = books.filter((book) => book.completed).length;
+        const overallProgress = books.length
+          ? Math.round(
+              (books.reduce(
+                (acc, book) => acc + book.currentPage / book.totalPages,
+                0
+              ) /
+                total) *
+                100
+            )
+          : 0;
 
-                const data = await response.json();
-                
-                if (!data.success) {
-                    throw new Error(data.message || 'Failed to update progress');
-                }
+        document.getElementById("totalBooks").textContent = total;
+        document.getElementById("completedBooks").textContent = completed;
+        document.getElementById(
+          "overallProgress"
+        ).textContent = `${overallProgress}%`;
+        document.getElementById(
+          "progressBar"
+        ).style.width = `${overallProgress}%`;
+      }
 
-                await loadReadingList();
-                showToast('Progress updated');
-            } catch (error) {
-                console.error('Error updating progress:', error);
-                showToast('Error updating progress');
-            }
-        }
+      function showToast(message) {
+        const toastContainer = document.querySelector(".toast-container");
+        const toast = document.createElement("div");
+        toast.className = "toast show";
+        toast.innerHTML = `<div class="toast-body">${message}</div>`;
+        toastContainer.appendChild(toast);
 
-        function updateStats(books) {
-            if (!books) books = [];
-            
-            const total = books.length;
-            const completed = books.filter(book => book.completed).length;
-            const overallProgress = books.length ? 
-                Math.round((books.reduce((acc, book) => acc + (book.currentPage / book.totalPages), 0) / total) * 100) : 0;
-
-            document.getElementById('totalBooks').textContent = total;
-            document.getElementById('completedBooks').textContent = completed;
-            document.getElementById('overallProgress').textContent = `${overallProgress}%`;
-            document.getElementById('progressBar').style.width = `${overallProgress}%`;
-        }
-
-        function showToast(message) {
-            const toastContainer = document.querySelector('.toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'toast show';
-            toast.innerHTML = `<div class="toast-body">${message}</div>`;
-            toastContainer.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
-        }
+        setTimeout(() => {
+          toast.remove();
+        }, 3000);
+      }
     </script>
-</body>
-</html> 
+  </body>
+</html>

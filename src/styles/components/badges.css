@@ -1,0 +1,37 @@
+.book-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(139, 69, 19, 0.9);
+    color: #F5DEB3;
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    backdrop-filter: blur(4px);
+}
+
+.favorite-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(220, 53, 69, 0.9);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.date-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: #8B4513;
+    color: #F5DEB3;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+} 

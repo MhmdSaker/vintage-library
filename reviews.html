@@ -134,7 +134,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="favorites.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Favorites">
+                        <a class="nav-link px-2" href="index.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Favorites">
                             <i data-lucide="heart"></i>
                         </a>
                     </li>
@@ -257,6 +257,35 @@
         window.booksData = {
             books: JSON.parse('{"books": ' + JSON.stringify(booksData.books) + '}').books
         };
+
+        // Populate book select elements
+        document.addEventListener('DOMContentLoaded', function() {
+            const bookSelects = document.querySelectorAll('select:not([class*="form-select"]):not([id="bookSelect"])');
+            const reviewBookSelect = document.getElementById('bookSelect');
+            
+            // Create book options HTML
+            const createBookOptions = () => {
+                return window.booksData.books.map(book => 
+                    `<option value="${book.id}">${book.title} by ${book.author}</option>`
+                ).join('');
+            };
+
+            // Populate the filter select
+            bookSelects.forEach(select => {
+                select.innerHTML = `
+                    <option value="">All Books</option>
+                    ${createBookOptions()}
+                `;
+            });
+
+            // Populate the review form select
+            if (reviewBookSelect) {
+                reviewBookSelect.innerHTML = `
+                    <option value="">Choose a book...</option>
+                    ${createBookOptions()}
+                `;
+            }
+        });
     </script>
     <script src="src/js/auth.js"></script>
     <script src="src/js/reviews.js"></script>

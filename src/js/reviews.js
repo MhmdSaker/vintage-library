@@ -1,91 +1,171 @@
 // Reviews Manager Class
 class ReviewsManager {
     constructor() {
-        this.reviews = JSON.parse(localStorage.getItem('bookReviews') || '[]');
-        this.books = this.loadBooksFromJSON();
+        // Initialize empty state
+        this.reviews = [];
+        this.books = [];
+        
+        // Initialize UI elements
         this.initializeUI();
-        this.loadBooks();
+        
+        // Setup event listeners
         this.setupEventListeners();
+        
+        // Load data
+        this.initialize();
     }
 
-    // Load books from JSON file
-    loadBooksFromJSON() {
-        // Get books from the JSON data
-        const booksData = JSON.parse(JSON.stringify(window.booksData || {}));
-        return booksData.books || [];
+    // Initialize the reviews manager
+    async initialize() {
+        try {
+            // Load reviews from localStorage
+            this.loadReviews();
+            
+            // Load books from JSON file
+            this.books = await this.loadBooksFromJSON();
+            
+            // Populate UI
+            this.populateBookSelects();
+            this.displayReviews();
+        } catch (error) {
+            console.error('Initialization error:', error);
+            showToast('Error initializing reviews', 'error');
+        }
     }
 
     // Initialize UI elements
     initializeUI() {
-        this.bookSelect = document.querySelector('.reviews-filter select:first-child');
+        // Get filter elements
+        this.filterSelect = document.querySelector('.reviews-filter select:first-child');
         this.sortSelect = document.querySelector('.reviews-filter select:last-child');
-        this.reviewsList = document.getElementById('reviewsList');
+        
+        // Get review form elements
         this.reviewForm = document.getElementById('reviewForm');
+        this.bookSelect = document.getElementById('bookSelect');
+        this.ratingInputs = document.querySelectorAll('input[name="rating"]');
+        this.reviewText = document.getElementById('reviewText');
+        
+        // Get reviews list container
+        this.reviewsList = document.getElementById('reviewsList');
     }
 
-    // Load books into the select dropdowns
-    loadBooks() {
-        // Create the options HTML
-        const optionsHTML = `
+    // Setup event listeners
+    setupEventListeners() {
+        // Review form submission
+        this.reviewForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleReviewSubmission();
+        });
+
+        // Filtering and sorting
+        this.filterSelect.addEventListener('change', () => this.displayReviews());
+        this.sortSelect.addEventListener('change', () => this.displayReviews());
+    }
+
+    // Load reviews from localStorage
+    loadReviews() {
+        try {
+            this.reviews = JSON.parse(localStorage.getItem('bookReviews')) || [];
+        } catch (error) {
+            console.error('Error loading reviews:', error);
+            this.reviews = [];
+        }
+    }
+
+    // Save reviews to localStorage
+    saveReviews() {
+        try {
+            localStorage.setItem('bookReviews', JSON.stringify(this.reviews));
+        } catch (error) {
+            console.error('Error saving reviews:', error);
+            showToast('Error saving review', 'error');
+        }
+    }
+
+    // Load books from JSON file
+    async loadBooksFromJSON() {
+        try {
+            const response = await fetch('src/data/books.json');
+            if (!response.ok) {
+                throw new Error('Failed to load books');
+            }
+            const data = await response.json();
+            return data.books || [];
+        } catch (error) {
+            console.error('Error loading books:', error);
+            showToast('Error loading books data', 'error');
+            return [];
+        }
+    }
+
+    // Populate book select dropdowns
+    populateBookSelects() {
+        if (!this.books.length) {
+            showToast('No books available', 'warning');
+            return;
+        }
+
+        // Create options HTML for filter select
+        const filterOptionsHTML = `
             <option value="">All Books</option>
             ${this.books.map(book => `
                 <option value="${book.id}">${book.title} by ${book.author}</option>
             `).join('')}
         `;
 
-        // Update both select elements (filter and form)
-        this.bookSelect.innerHTML = optionsHTML;
-        document.getElementById('bookSelect').innerHTML = optionsHTML;
+        // Create options HTML for review form select
+        const formOptionsHTML = `
+            <option value="">Choose a book...</option>
+            ${this.books.map(book => `
+                <option value="${book.id}">${book.title} by ${book.author}</option>
+            `).join('')}
+        `;
+
+        // Update select elements
+        this.filterSelect.innerHTML = filterOptionsHTML;
+        this.bookSelect.innerHTML = formOptionsHTML;
     }
 
-    // Setup event listeners
-    setupEventListeners() {
-        // Form submission
-        this.reviewForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.addReview();
-        });
-
-        // Filtering and sorting
-        this.bookSelect.addEventListener('change', () => this.displayReviews());
-        this.sortSelect.addEventListener('change', () => this.displayReviews());
-    }
-
-    // Add a new review
-    addReview() {
-        const bookId = document.getElementById('bookSelect').value;
+    // Handle review submission
+    handleReviewSubmission() {
+        // Get form values
+        const bookId = this.bookSelect.value;
         const rating = document.querySelector('input[name="rating"]:checked')?.value;
-        const reviewText = document.getElementById('reviewText').value;
+        const reviewText = this.reviewText.value.trim();
 
-        if (!bookId || !rating || !reviewText.trim()) {
+        // Validate form
+        if (!bookId || !rating || !reviewText) {
             showToast('Please fill in all fields', 'warning');
             return;
         }
 
+        // Create review object
         const review = {
-            id: Date.now(),
+            id: Date.now().toString(),
             bookId,
             rating: parseInt(rating),
-            text: reviewText.trim(),
+            text: reviewText,
             date: new Date().toISOString(),
             userName: 'Anonymous User' // In a real app, this would come from user authentication
         };
 
+        // Add review
         this.reviews.push(review);
         this.saveReviews();
         this.displayReviews();
-        this.reviewForm.reset();
-        showToast('Review added successfully!');
-    }
 
-    // Save reviews to localStorage
-    saveReviews() {
-        localStorage.setItem('bookReviews', JSON.stringify(this.reviews));
+        // Reset form
+        this.reviewForm.reset();
+        showToast('Review added successfully!', 'success');
     }
 
     // Get book details by ID
     getBookDetails(bookId) {
-        return window.db.getBookById(bookId);
+        const book = this.books.find(book => book.id === bookId);
+        return book || {
+            title: 'Unknown Book',
+            author: 'Unknown Author'
+        };
     }
 
     // Format date for display
@@ -116,15 +196,18 @@ class ReviewsManager {
 
     // Display reviews
     displayReviews() {
-        const selectedBookId = this.bookSelect.value;
+        const selectedBookId = this.filterSelect.value;
         let filteredReviews = this.reviews;
 
+        // Filter by book if selected
         if (selectedBookId) {
             filteredReviews = this.reviews.filter(review => review.bookId === selectedBookId);
         }
 
+        // Sort reviews
         const sortedReviews = this.sortReviews(filteredReviews);
 
+        // Generate HTML
         this.reviewsList.innerHTML = sortedReviews.length ? sortedReviews.map(review => {
             const book = this.getBookDetails(review.bookId);
             return `
@@ -153,7 +236,7 @@ class ReviewsManager {
             </div>
         `;
 
-        // Reinitialize icons for new content
+        // Reinitialize icons
         lucide.createIcons();
     }
 }
@@ -172,8 +255,6 @@ function createToastContainer() {
 // Show toast notification
 function showToast(message, type = 'success') {
     const toastContainer = document.getElementById('toastContainer');
-    const toastId = Date.now();
-    
     const toast = document.createElement('div');
     toast.className = `toast align-items-center border-0 bg-${type}`;
     toast.setAttribute('role', 'alert');
@@ -200,5 +281,4 @@ function showToast(message, type = 'success') {
 document.addEventListener('DOMContentLoaded', () => {
     createToastContainer();
     window.reviewsManager = new ReviewsManager();
-    window.reviewsManager.displayReviews();
 });

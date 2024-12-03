@@ -88,6 +88,173 @@
             color: #8b7355;
             flex-shrink: 0;
         }
+
+        /* Favorites Panel Styles */
+        .favorites-panel {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 320px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            max-height: 480px;
+            overflow-y: auto;
+        }
+
+        .favorites-container {
+            position: relative;
+        }
+
+        .favorites-container:hover .favorites-panel {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .favorites-header {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(139, 115, 85, 0.1);
+            background: rgba(139, 115, 85, 0.03);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .favorites-header h6 {
+            color: #2d2d2d;
+            margin: 0;
+        }
+
+        .favorite-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(139, 115, 85, 0.1);
+            transition: background-color 0.2s ease;
+        }
+
+        .favorite-item:hover {
+            background-color: rgba(139, 115, 85, 0.05);
+        }
+
+        .favorite-item:last-child {
+            border-bottom: none;
+        }
+
+        .favorite-item img {
+            width: 48px;
+            height: 72px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-right: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .favorite-item-info {
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .favorite-item-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.95rem;
+            margin: 0 0 0.25rem 0;
+            color: #2d2d2d;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .favorite-item-author {
+            font-size: 0.85rem;
+            color: #666;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .favorite-item-remove {
+            background: none;
+            border: none;
+            padding: 0.5rem;
+            color: #8b7355;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .favorite-item-remove:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .favorite-item-remove i {
+            width: 18px;
+            height: 18px;
+        }
+
+        .favorites-empty {
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            color: #666;
+        }
+
+        .favorites-empty i {
+            color: #8b7355;
+            opacity: 0.5;
+            margin-bottom: 1rem;
+            width: 32px;
+            height: 32px;
+        }
+
+        .favorites-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #8b7355;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(139, 115, 85, 0.3);
+        }
+
+        /* Add scrollbar styling */
+        .favorites-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .favorites-panel::-webkit-scrollbar-track {
+            background: rgba(139, 115, 85, 0.05);
+            border-radius: 0 12px 12px 0;
+        }
+
+        .favorites-panel::-webkit-scrollbar-thumb {
+            background: rgba(139, 115, 85, 0.2);
+            border-radius: 4px;
+        }
+
+        .favorites-panel::-webkit-scrollbar-thumb:hover {
+            background: rgba(139, 115, 85, 0.3);
+        }
     </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
@@ -118,11 +285,20 @@
                             <i data-lucide="list"></i>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-2" href="#" id="favoritesBtn" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Favorites">
+                    <li class="nav-item favorites-container">
+                        <a class="nav-link px-2 position-relative" href="#" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Favorites" data-bs-auto-close="outside">
                             <i data-lucide="heart"></i>
                             <span class="favorites-badge" id="favoritesCount">0</span>
                         </a>
+                        <div class="favorites-panel">
+                            <div class="favorites-header">
+                                <h6 class="mb-0 font-playfair">Favorite Books</h6>
+                                <small class="text-muted">Recently Added</small>
+                            </div>
+                            <div id="favoritesList">
+                                <!-- Favorite items will be dynamically added here -->
+                            </div>
+                        </div>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link px-2" href="reading-list.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Reading List">
@@ -282,6 +458,73 @@
     <script>
         // Initialize Lucide icons
         lucide.createIcons();
+
+        // Initialize tooltips with updated options
+        const tooltipOptions = {
+            trigger: 'hover',
+            placement: 'bottom',
+            container: 'body'
+        };
+        
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => 
+            new bootstrap.Tooltip(tooltipTriggerEl, tooltipOptions)
+        );
+
+        // Update favorites panel on load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateFavoritesPanel();
+        });
+
+        // Function to update favorites panel
+        async function updateFavoritesPanel() {
+            try {
+                const response = await fetch('src/api/favorites.php');
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.message || 'Failed to load favorites');
+                }
+
+                const favorites = data.favorites;
+                const favoritesList = document.getElementById('favoritesList');
+                const favoritesCount = document.getElementById('favoritesCount');
+                
+                // Update badge count
+                favoritesCount.textContent = favorites.length;
+                
+                if (favorites.length === 0) {
+                    favoritesList.innerHTML = `
+                        <div class="favorites-empty">
+                            <i data-lucide="heart-off" class="mb-2"></i>
+                            <p class="mb-0">No favorite books yet</p>
+                        </div>
+                    `;
+                    lucide.createIcons();
+                    return;
+                }
+
+                favoritesList.innerHTML = favorites
+                    .slice(0, 5) // Show only last 5 favorites
+                    .map(book => `
+                        <div class="favorite-item">
+                            <img src="${book.imageUrl}" alt="${book.title}">
+                            <div class="favorite-item-info">
+                                <h6 class="favorite-item-title">${book.title}</h6>
+                                <p class="favorite-item-author">${book.author}</p>
+                            </div>
+                            <button class="favorite-item-remove" onclick="removeFavorite('${book.id}')">
+                                <i data-lucide="x"></i>
+                            </button>
+                        </div>
+                    `).join('');
+
+                lucide.createIcons();
+            } catch (error) {
+                console.error('Error updating favorites panel:', error);
+                showToast('Error loading favorites');
+            }
+        }
 
         // Form handling
         document.getElementById('contactForm').addEventListener('submit', function(e) {

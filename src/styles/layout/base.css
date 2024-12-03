@@ -1,0 +1,12 @@
+body {
+    font-family: 'Libre Baskerville', serif;
+    background-color: #F5DEB3;
+    background-image: linear-gradient(rgba(222, 184, 135, 0.1) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(222, 184, 135, 0.1) 1px, transparent 1px);
+    background-size: 24px 24px;
+    color: #8B4513;
+}
+
+.font-playfair {
+    font-family: 'Playfair Display', serif;
+} 

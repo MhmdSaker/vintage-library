@@ -1,0 +1,122 @@
+.search-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.search-container {
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border-radius: 2rem;
+    padding: 0.5rem;
+    box-shadow: 0 4px 6px rgba(139, 69, 19, 0.1);
+    border: 2px solid rgba(139, 69, 19, 0.1);
+    transition: all 0.3s ease;
+}
+
+.search-box:focus-within {
+    box-shadow: 0 6px 12px rgba(139, 69, 19, 0.15);
+    border-color: rgba(139, 69, 19, 0.3);
+}
+
+.search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #8B4513;
+    width: 20px;
+    height: 20px;
+    margin: 0 0.75rem;
+}
+
+.search-input {
+    flex-grow: 1;
+    border: none;
+    background: none;
+    padding: 0.75rem;
+    font-family: 'Libre Baskerville', serif;
+    color: #8B4513;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.search-input::placeholder {
+    color: rgba(139, 69, 19, 0.5);
+    opacity: 1;
+}
+
+.search-input:focus {
+    text-align: left;
+    outline: none;
+    box-shadow: none;
+}
+
+.search-input:not(:placeholder-shown) {
+    text-align: left;
+}
+
+.search-filters {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0 0.75rem;
+    border-left: 2px solid rgba(139, 69, 19, 0.1);
+}
+
+.filter-btn,
+.sort-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #8B4513;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover,
+.sort-btn:hover {
+    background-color: rgba(139, 69, 19, 0.1);
+    color: #8B4513;
+}
+
+.filter-btn i,
+.sort-btn i {
+    width: 20px;
+    height: 20px;
+}
+
+.search-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem;
+}
+
+.search-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    background-color: rgba(139, 69, 19, 0.1);
+    color: #8B4513;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+}
+
+.search-tag i {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+} 

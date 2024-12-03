@@ -2,9 +2,17 @@
 class ReviewsManager {
     constructor() {
         this.reviews = JSON.parse(localStorage.getItem('bookReviews') || '[]');
+        this.books = this.loadBooksFromJSON();
         this.initializeUI();
         this.loadBooks();
         this.setupEventListeners();
+    }
+
+    // Load books from JSON file
+    loadBooksFromJSON() {
+        // Get books from the JSON data
+        const booksData = JSON.parse(JSON.stringify(window.booksData || {}));
+        return booksData.books || [];
     }
 
     // Initialize UI elements
@@ -15,15 +23,19 @@ class ReviewsManager {
         this.reviewForm = document.getElementById('reviewForm');
     }
 
-    // Load books into the select dropdown
+    // Load books into the select dropdowns
     loadBooks() {
-        const books = window.db.getAllBooks();
-        this.bookSelect.innerHTML = `
+        // Create the options HTML
+        const optionsHTML = `
             <option value="">All Books</option>
-            ${books.map(book => `
+            ${this.books.map(book => `
                 <option value="${book.id}">${book.title} by ${book.author}</option>
             `).join('')}
         `;
+
+        // Update both select elements (filter and form)
+        this.bookSelect.innerHTML = optionsHTML;
+        document.getElementById('bookSelect').innerHTML = optionsHTML;
     }
 
     // Setup event listeners
@@ -190,110 +202,3 @@ document.addEventListener('DOMContentLoaded', () => {
     window.reviewsManager = new ReviewsManager();
     window.reviewsManager.displayReviews();
 });
-
-// Reviews handling
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize the books dropdown
-    populateBookSelect();
-    // Load existing reviews
-    loadReviews();
-    
-    // Handle review form submission
-    document.getElementById('reviewForm').addEventListener('submit', handleReviewSubmit);
-});
-
-function populateBookSelect() {
-    const bookSelect = document.getElementById('bookSelect');
-    const books = JSON.parse(localStorage.getItem('books')) || [];
-    
-    books.forEach(book => {
-        const option = document.createElement('option');
-        option.value = book.id;
-        option.textContent = book.title;
-        bookSelect.appendChild(option);
-    });
-}
-
-function handleReviewSubmit(e) {
-    e.preventDefault();
-    
-    const bookId = document.getElementById('bookSelect').value;
-    const rating = document.querySelector('input[name="rating"]:checked').value;
-    const reviewText = document.getElementById('reviewText').value;
-    
-    // Get existing reviews or initialize empty array
-    const reviews = JSON.parse(localStorage.getItem('reviews')) || [];
-    
-    // Create new review object
-    const newReview = {
-        id: Date.now(),
-        bookId: bookId,
-        rating: parseInt(rating),
-        text: reviewText,
-        date: new Date().toISOString(),
-        userId: 'user123' // In a real app, this would come from auth
-    };
-    
-    // Add new review
-    reviews.push(newReview);
-    
-    // Save to localStorage
-    localStorage.setItem('reviews', JSON.stringify(reviews));
-    
-    // Refresh reviews display
-    loadReviews();
-    
-    // Reset form
-    e.target.reset();
-    
-    // Show success message
-    alert('Review submitted successfully!');
-}
-
-function loadReviews() {
-    const reviewsList = document.getElementById('reviewsList');
-    const reviews = JSON.parse(localStorage.getItem('reviews')) || [];
-    const books = JSON.parse(localStorage.getItem('books')) || [];
-    
-    // Clear current reviews
-    reviewsList.innerHTML = '';
-    
-    reviews.forEach(review => {
-        const book = books.find(b => b.id === review.bookId);
-        if (!book) return;
-        
-        const reviewElement = createReviewElement(review, book);
-        reviewsList.appendChild(reviewElement);
-    });
-}
-
-function createReviewElement(review, book) {
-    const div = document.createElement('div');
-    div.className = 'review-card';
-    
-    const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
-    const date = new Date(review.date).toLocaleDateString();
-    
-    div.innerHTML = `
-        <div class="d-flex align-items-center mb-3">
-            <div class="review-avatar me-3">
-                <i data-lucide="user"></i>
-            </div>
-            <div>
-                <h5 class="mb-1">${book.title}</h5>
-                <div class="rating">${stars}</div>
-            </div>
-        </div>
-        <p class="review-text mb-2">${review.text}</p>
-        <div class="review-meta">
-            Posted on ${date}
-        </div>
-    `;
-    
-    // Re-initialize Lucide icons
-    lucide.createIcons({
-        target: div
-    });
-    
-    return div;
-}

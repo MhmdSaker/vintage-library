@@ -193,6 +193,25 @@
         align-items: center;
         justify-content: center;
       }
+
+      /* Toast styling */
+      .toast-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1050;
+      }
+
+      .toast {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        margin-bottom: 0.5rem;
+      }
+
+      .toast-body {
+        padding: 0.75rem 1rem;
+      }
     </style>
   </head>
   <body class="d-flex flex-column min-vh-100">
@@ -208,6 +227,7 @@
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#navbarNav"
+          title="Toggle navigation"
         >
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -355,10 +375,8 @@
           <h1 class="font-playfair mb-4">My Reading List</h1>
         </div>
         <div class="col-md-4 text-md-end">
-          <button class="btn vintage-btn" onclick="addToReadingList()">
-            <a class="nav-link" href="add-book.html"
-              >Add Book<i data-lucide="plus" class="ms-2"></i
-            ></a>
+          <button class="btn vintage-btn" data-bs-toggle="modal" data-bs-target="#addBookModal">
+            Add Book<i data-lucide="plus" class="ms-2"></i>
           </button>
         </div>
       </div>
@@ -370,34 +388,8 @@
           </div>
         </div>
         <div class="col-md-4">
-          <div class="vintage-card mb-4">
-            <h3 class="font-playfair h5 mb-4">Reading Stats</h3>
-            <div class="row text-center g-3">
-              <div class="col-6">
-                <div class="stats-number" id="totalBooks">0</div>
-                <div class="stats-label">Total Books</div>
-              </div>
-              <div class="col-6">
-                <div class="stats-number" id="completedBooks">0</div>
-                <div class="stats-label">Completed</div>
-              </div>
-              <div class="col-12">
-                <div class="mt-3">
-                  <div class="d-flex justify-content-between mb-2">
-                    <small>Overall Progress</small>
-                    <small id="overallProgress">0%</small>
-                  </div>
-                  <div class="progress" style="height: 8px">
-                    <div
-                      class="progress-bar"
-                      id="progressBar"
-                      role="progressbar"
-                      style="width: 0%"
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div id="readingStats">
+            <!-- Reading stats will be dynamically added here -->
           </div>
         </div>
       </div>
@@ -413,18 +405,19 @@
               type="button"
               class="btn-close"
               data-bs-dismiss="modal"
+              title="Close"
             ></button>
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label class="form-label">Select Book</label>
-              <select class="form-select" id="bookSelect">
+              <label for="bookSelect" class="form-label">Select Book</label>
+              <select class="form-select" id="bookSelect" title="Choose a book">
                 <!-- Options will be populated dynamically -->
               </select>
             </div>
             <div class="mb-3">
-              <label class="form-label">Total Pages</label>
-              <input type="number" class="form-control" id="totalPages" />
+              <label for="totalPages" class="form-label">Total Pages</label>
+              <input type="number" class="form-control" id="totalPages" title="Enter total pages" placeholder="Number of pages" />
             </div>
           </div>
           <div class="modal-footer">
@@ -438,7 +431,7 @@
             <button
               type="button"
               class="btn vintage-btn"
-              onclick="confirmAddBook()"
+              id="confirmAddBookBtn"
             >
               Add Book
             </button>
@@ -447,259 +440,100 @@
       </div>
     </div>
 
-    <div class="toast-container"></div>
+    <!-- Toast container for notifications -->
+    <div id="toastContainer" class="toast-container"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="src/js/data.js"></script>
-    <script src="src/js/database.js"></script>
+    <script src="src/js/reading-list.js"></script>
     <script>
       // Initialize tooltips and icons
-      document.addEventListener("DOMContentLoaded", async function () {
-        const tooltipTriggerList = document.querySelectorAll(
-          '[data-bs-toggle="tooltip"]'
-        );
+      document.addEventListener("DOMContentLoaded", function() {
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
         const tooltipList = [...tooltipTriggerList].map(
           (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl)
         );
         lucide.createIcons();
-
-        // Initial load of reading list and favorites
-        await loadReadingList();
-        await updateFavoritesPanel();
+        
+        // Populate book select in modal
+        populateBookSelect();
+        
+        // Add event listener for add book button
+        document.getElementById('confirmAddBookBtn').addEventListener('click', addBookToReadingList);
       });
-
-      // Add this function for favorites panel
-      async function updateFavoritesPanel() {
+      
+      // Populate book select with available books
+      async function populateBookSelect() {
         try {
-          const response = await fetch("src/api/favorites.php");
+          const response = await fetch('src/api/books.php');
           const data = await response.json();
-
-          if (!data.success) {
-            throw new Error(data.message || "Failed to load favorites");
+          
+          if (data.success && data.books) {
+            const selectElement = document.getElementById('bookSelect');
+            selectElement.innerHTML = '<option value="">Select a book</option>';
+            
+            data.books.forEach(book => {
+              const option = document.createElement('option');
+              option.value = book.id;
+              option.textContent = `${book.title} by ${book.author}`;
+              selectElement.appendChild(option);
+            });
           }
-
-          const favorites = data.favorites;
-          const favoritesList = document.getElementById("favoritesList");
-          const favoritesCount = document.getElementById("favoritesCount");
-
-          // Update badge count
-          favoritesCount.textContent = favorites.length;
-
-          if (favorites.length === 0) {
-            favoritesList.innerHTML = `
-                        <div class="favorites-empty">
-                            <i data-lucide="heart-off" class="mb-2"></i>
-                            <p class="mb-0">No favorite books yet</p>
-                        </div>
-                    `;
-            lucide.createIcons();
-            return;
-          }
-
-          favoritesList.innerHTML = favorites
-            .slice(0, 5) // Show only last 5 favorites
-            .map(
-              (book) => `
-                        <div class="favorite-item">
-                            <img src="${book.imageUrl}" alt="${book.title}">
-                            <div class="favorite-item-info">
-                                <h6 class="favorite-item-title">${book.title}</h6>
-                                <p class="favorite-item-author">${book.author}</p>
-                            </div>
-                            <button class="favorite-item-remove" onclick="removeFavorite('${book.id}')">
-                                <i data-lucide="x"></i>
-                            </button>
-                        </div>
-                    `
-            )
-            .join("");
-
-          lucide.createIcons();
         } catch (error) {
-          console.error("Error loading favorites:", error);
-          showToast("Error loading favorites");
+          console.error('Error loading books:', error);
+          showToast('Failed to load available books');
         }
       }
-
-      // Add this function for removing favorites
-      async function removeFavorite(bookId) {
-        try {
-          const response = await fetch("src/api/favorites.php", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              bookId: bookId,
-              action: "remove",
-            }),
-          });
-
-          const data = await response.json();
-
-          if (!data.success) {
-            throw new Error(data.message || "Failed to remove favorite");
-          }
-
-          updateFavoritesPanel();
-          showToast("Book removed from favorites");
-        } catch (error) {
-          console.error("Error removing favorite:", error);
-          showToast("Error removing book from favorites");
-        }
-      }
-
-      // Keep the existing reading list functions
-      async function loadReadingList() {
-        try {
-          const response = await fetch("src/api/reading-list.php");
-          const data = await response.json();
-
-          if (!data.success) {
-            throw new Error(data.message || "Failed to load reading list");
-          }
-
-          renderReadingList(data.books);
-        } catch (error) {
-          console.error("Error loading reading list:", error);
-          showToast("Error loading reading list");
-        }
-      }
-
-      function renderReadingList(books) {
-        const container = document.getElementById("readingList");
-
-        if (!books || books.length === 0) {
-          container.innerHTML = `
-                    <div class="text-center py-5">
-                        <i data-lucide="book-x" class="mb-3" style="width: 48px; height: 48px; color: #8b7355;"></i>
-                        <h3 class="font-playfair">No Books in Reading List</h3>
-                        <p class="text-muted">Start adding books to your reading list!</p>
-                    </div>
-                `;
-          lucide.createIcons();
-          updateStats(books);
+      
+      // Add book to reading list
+      async function addBookToReadingList() {
+        const bookId = document.getElementById('bookSelect').value;
+        const totalPages = document.getElementById('totalPages').value;
+        
+        if (!bookId) {
+          showToast('Please select a book');
           return;
         }
-
-        container.innerHTML = books
-          .map(
-            (book) => `
-                <div class="reading-list-item p-3 ${
-                  book.completed ? "completed" : ""
-                }">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div>
-                            <h5 class="font-playfair mb-1">${book.title}</h5>
-                            <p class="text-muted mb-0">${book.author}</p>
-                        </div>
-                        <span class="book-status ${
-                          book.completed ? "completed" : ""
-                        }">
-                            ${book.completed ? "Completed" : "In Progress"}
-                        </span>
-                    </div>
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <div class="book-progress">
-                                <div class="progress-bar" style="width: ${
-                                  (book.currentPage / book.totalPages) * 100
-                                }%"></div>
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <div class="d-flex align-items-center gap-2">
-                                <input type="number" class="page-input" 
-                                    value="${book.currentPage}" 
-                                    onchange="updateProgress('${
-                                      book.id
-                                    }', this.value, ${book.totalPages})"
-                                    min="0" max="${book.totalPages}">
-                                <span class="text-muted">of ${
-                                  book.totalPages
-                                }</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `
-          )
-          .join("");
-
-        updateStats(books);
-      }
-
-      async function updateProgress(bookId, newPage, totalPages) {
+        
+        if (!totalPages || totalPages < 1) {
+          showToast('Please enter a valid number of pages');
+          return;
+        }
+        
         try {
-          const currentPage = Math.min(
-            Math.max(0, parseInt(newPage)),
-            totalPages
-          );
-          const completed = currentPage === totalPages;
-
-          const response = await fetch("src/api/reading-list.php", {
-            method: "POST",
+          const response = await fetch('src/api/reading-list.php', {
+            method: 'POST',
             headers: {
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              action: "update",
-              bookId: bookId,
-              currentPage: currentPage,
-              completed: completed,
-            }),
+              book_id: bookId,
+              total_pages: parseInt(totalPages),
+              current_page: 0,
+              completed: false
+            })
           });
-
+          
           const data = await response.json();
-
-          if (!data.success) {
-            throw new Error(data.message || "Failed to update progress");
+          
+          if (data.error) {
+            showToast(data.error);
+          } else {
+            // Close modal and refresh reading list
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addBookModal'));
+            modal.hide();
+            
+            // Reset form
+            document.getElementById('bookSelect').value = '';
+            document.getElementById('totalPages').value = '';
+            
+            // Refresh reading list
+            updateReadingList();
+            showToast('Book added to reading list');
           }
-
-          await loadReadingList();
-          showToast("Progress updated");
         } catch (error) {
-          console.error("Error updating progress:", error);
-          showToast("Error updating progress");
+          console.error('Error adding book to reading list:', error);
+          showToast('Failed to add book to reading list');
         }
-      }
-
-      function updateStats(books) {
-        if (!books) books = [];
-
-        const total = books.length;
-        const completed = books.filter((book) => book.completed).length;
-        const overallProgress = books.length
-          ? Math.round(
-              (books.reduce(
-                (acc, book) => acc + book.currentPage / book.totalPages,
-                0
-              ) /
-                total) *
-                100
-            )
-          : 0;
-
-        document.getElementById("totalBooks").textContent = total;
-        document.getElementById("completedBooks").textContent = completed;
-        document.getElementById(
-          "overallProgress"
-        ).textContent = `${overallProgress}%`;
-        document.getElementById(
-          "progressBar"
-        ).style.width = `${overallProgress}%`;
-      }
-
-      function showToast(message) {
-        const toastContainer = document.querySelector(".toast-container");
-        const toast = document.createElement("div");
-        toast.className = "toast show";
-        toast.innerHTML = `<div class="toast-body">${message}</div>`;
-        toastContainer.appendChild(toast);
-
-        setTimeout(() => {
-          toast.remove();
-        }, 3000);
       }
     </script>
   </body>

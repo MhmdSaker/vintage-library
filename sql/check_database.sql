@@ -1,0 +1,5 @@
+SHOW DATABASES;
+USE vintage_library;
+SHOW TABLES;
+SELECT COUNT(*) FROM books;
+SELECT * FROM books LIMIT 5; 

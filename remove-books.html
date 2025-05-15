@@ -306,7 +306,7 @@
                 <i data-lucide="library" class="me-2"></i>
                 <span class="font-playfair">Vintage Library</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation" title="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -434,11 +434,15 @@
         async function loadBooks() {
             showLoading();
             try {
-                const response = await fetch('src/data/books.json');
+                const response = await fetch('src/api/books.php');
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to load books');
+                }
                 
                 if (!data || !data.books) {
                     throw new Error('Invalid data format');
@@ -497,12 +501,11 @@
             }
 
             try {
-                const response = await fetch('src/api/remove-book.php', {
-                    method: 'POST',
+                const response = await fetch(`src/api/books.php?id=${bookId}`, {
+                    method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ bookId })
+                    }
                 });
 
                 const data = await response.json();

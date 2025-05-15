@@ -18,11 +18,11 @@ class ReviewsManager {
     // Initialize the reviews manager
     async initialize() {
         try {
-            // Load reviews from localStorage
-            this.loadReviews();
+            // Load books from API
+            await this.loadBooks();
             
-            // Load books from JSON file
-            this.books = await this.loadBooksFromJSON();
+            // Load reviews from API
+            await this.loadReviews();
             
             // Populate UI
             this.populateBookSelects();
@@ -42,6 +42,7 @@ class ReviewsManager {
         // Get review form elements
         this.reviewForm = document.getElementById('reviewForm');
         this.bookSelect = document.getElementById('bookSelect');
+        this.reviewerName = document.getElementById('reviewerName');
         this.ratingInputs = document.querySelectorAll('input[name="rating"]');
         this.reviewText = document.getElementById('reviewText');
         
@@ -62,39 +63,37 @@ class ReviewsManager {
         this.sortSelect.addEventListener('change', () => this.displayReviews());
     }
 
-    // Load reviews from localStorage
-    loadReviews() {
+    // Load reviews from API
+    async loadReviews() {
         try {
-            this.reviews = JSON.parse(localStorage.getItem('bookReviews')) || [];
+            // Use the getAllReviews method from our db module
+            this.reviews = await window.db.getAllReviews();
         } catch (error) {
             console.error('Error loading reviews:', error);
             this.reviews = [];
+            showToast('Error loading reviews from database', 'error');
         }
     }
 
-    // Save reviews to localStorage
-    saveReviews() {
+    // Load a specific book's reviews
+    async loadBookReviews(bookId) {
         try {
-            localStorage.setItem('bookReviews', JSON.stringify(this.reviews));
+            return await window.db.getBookReviews(bookId);
         } catch (error) {
-            console.error('Error saving reviews:', error);
-            showToast('Error saving review', 'error');
+            console.error(`Error loading reviews for book ${bookId}:`, error);
+            return [];
         }
     }
 
-    // Load books from JSON file
-    async loadBooksFromJSON() {
+    // Load books from API
+    async loadBooks() {
         try {
-            const response = await fetch('src/data/books.json');
-            if (!response.ok) {
-                throw new Error('Failed to load books');
-            }
-            const data = await response.json();
-            return data.books || [];
+            // Use the getAllBooks method from our db module
+            this.books = await window.db.getAllBooks();
         } catch (error) {
             console.error('Error loading books:', error);
             showToast('Error loading books data', 'error');
-            return [];
+            this.books = [];
         }
     }
 
@@ -127,41 +126,49 @@ class ReviewsManager {
     }
 
     // Handle review submission
-    handleReviewSubmission() {
+    async handleReviewSubmission() {
         // Get form values
         const bookId = this.bookSelect.value;
         const rating = document.querySelector('input[name="rating"]:checked')?.value;
         const reviewText = this.reviewText.value.trim();
+        const reviewerName = this.reviewerName.value.trim();
 
         // Validate form
-        if (!bookId || !rating || !reviewText) {
+        if (!bookId || !rating || !reviewText || !reviewerName) {
             showToast('Please fill in all fields', 'warning');
             return;
         }
 
-        // Create review object
-        const review = {
-            id: Date.now().toString(),
-            bookId,
-            rating: parseInt(rating),
-            text: reviewText,
-            date: new Date().toISOString(),
-            userName: 'Anonymous User' // In a real app, this would come from user authentication
-        };
+        try {
+            // Submit review to the database using the API
+            const response = await window.db.addReview(
+                bookId,
+                reviewerName,
+                parseInt(rating),
+                reviewText
+            );
 
-        // Add review
-        this.reviews.push(review);
-        this.saveReviews();
-        this.displayReviews();
-
-        // Reset form
-        this.reviewForm.reset();
-        showToast('Review added successfully!', 'success');
+            if (response && !response.error) {
+                showToast('Review added successfully!', 'success');
+                
+                // Reload reviews and update display
+                await this.loadReviews();
+                this.displayReviews();
+                
+                // Reset form
+                this.reviewForm.reset();
+            } else {
+                throw new Error(response.error || 'Error adding review');
+            }
+        } catch (error) {
+            console.error('Error submitting review:', error);
+            showToast('Failed to submit review: ' + error.message, 'error');
+        }
     }
 
     // Get book details by ID
     getBookDetails(bookId) {
-        const book = this.books.find(book => book.id === bookId);
+        const book = this.books.find(book => book.id == bookId);
         return book || {
             title: 'Unknown Book',
             author: 'Unknown Author'
@@ -189,7 +196,7 @@ class ReviewsManager {
                 case 'Lowest Rated':
                     return a.rating - b.rating;
                 default: // Latest First
-                    return new Date(b.date) - new Date(a.date);
+                    return new Date(b.review_date || b.date) - new Date(a.review_date || a.date);
             }
         });
     }
@@ -201,7 +208,7 @@ class ReviewsManager {
 
         // Filter by book if selected
         if (selectedBookId) {
-            filteredReviews = this.reviews.filter(review => review.bookId === selectedBookId);
+            filteredReviews = this.reviews.filter(review => review.book_id == selectedBookId);
         }
 
         // Sort reviews
@@ -209,7 +216,7 @@ class ReviewsManager {
 
         // Generate HTML
         this.reviewsList.innerHTML = sortedReviews.length ? sortedReviews.map(review => {
-            const book = this.getBookDetails(review.bookId);
+            const book = this.getBookDetails(review.book_id);
             return `
                 <div class="review-card">
                     <div class="d-flex align-items-start gap-3 mb-3">
@@ -219,13 +226,13 @@ class ReviewsManager {
                         <div class="flex-grow-1">
                             <h5 class="mb-1 font-playfair">${book.title}</h5>
                             <div class="review-meta">
-                                <span class="me-3">${review.userName}</span>
-                                <span>${this.formatDate(review.date)}</span>
+                                <span class="me-3">${review.reviewer_name}</span>
+                                <span>${this.formatDate(review.review_date || review.date)}</span>
                             </div>
                         </div>
                         <div class="rating">${this.generateStarRating(review.rating)}</div>
                     </div>
-                    <p class="review-text mb-0">${review.text}</p>
+                    <p class="review-text mb-0">${review.comment || review.text}</p>
                 </div>
             `;
         }).join('') : `
@@ -254,6 +261,7 @@ function createToastContainer() {
 
 // Show toast notification
 function showToast(message, type = 'success') {
+    createToastContainer();
     const toastContainer = document.getElementById('toastContainer');
     const toast = document.createElement('div');
     toast.className = `toast align-items-center border-0 bg-${type}`;

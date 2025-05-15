@@ -1,19 +1,31 @@
 // Initialize Lucide icons
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Main.js loaded');
     lucide.createIcons();
 
     // Initialize tooltips and popovers
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    console.log(tooltipTriggerList)
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl)
     });
 
+
+
+
+
     // Verify books data is loaded
     console.log('Books data:', window.booksData);
 
+
+
+
+
+
     // Set active nav item based on current page
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    console.log(window.location.pathname)
     const navLinks = document.querySelectorAll('.nav-link');
     
     navLinks.forEach(link => {
@@ -21,6 +33,11 @@ document.addEventListener('DOMContentLoaded', function() {
             link.classList.add('active');
         }
     });
+
+
+
+
+
 
     // Add animation to search box on focus
     const searchInput = document.querySelector('.search-input');
@@ -38,6 +55,10 @@ document.addEventListener('DOMContentLoaded', function() {
         renderBooks();
     }
 });
+
+
+
+
 
 // Search functionality
 const searchInput = document.getElementById('searchInput');

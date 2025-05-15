@@ -303,6 +303,18 @@
             box-shadow: 0 4px 12px rgba(139, 115, 85, 0.2);
         }
 
+        .vintage-outline-btn.favorited {
+            background-color: rgba(217, 179, 16, 0.1);
+            color: #D9B310;
+            border: 2px solid #D9B310;
+        }
+
+        .vintage-outline-btn.favorited:hover {
+            background-color: #D9B310;
+            color: white;
+            box-shadow: 0 4px 12px rgba(217, 179, 16, 0.2);
+        }
+
         .fade-in {
             opacity: 0;
             animation: fadeIn 0.5s ease-in forwards;
@@ -568,7 +580,7 @@
                 <i data-lucide="library" class="me-2"></i>
                 <span class="font-playfair">Vintage Library</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation" title="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -654,7 +666,7 @@
                         id="searchInput" 
                         placeholder="Search by title, author, genre, or keyword..."
                     >
-                    <select class="form-select border-0" id="sortSelect" style="width: auto;">
+                    <select class="form-select border-0" id="sortSelect" style="width: auto;" title="Sort results by" aria-label="Sort by">
                         <option value="relevance">Most Relevant</option>
                         <option value="title">Title (A-Z)</option>
                         <option value="author">Author (A-Z)</option>
@@ -798,17 +810,37 @@
         </div>
     </main>
 
-    <div class="toast-container"></div>
+    <!-- Add the modal for adding to reading list -->
+    <div class="modal fade" id="addBookModal" tabindex="-1" aria-labelledby="addBookModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title font-playfair" id="addBookModalLabel">Add to Reading List</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="bookId">
+                    <div class="mb-3">
+                        <label for="modalTotalPages" class="form-label">How many pages does this book have?</label>
+                        <input type="number" class="form-control" id="modalTotalPages" value="100" min="1" title="Total pages">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn vintage-btn" onclick="confirmAddToReadingList()">Add to Reading List</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3"></div>
 
     <!-- Same Footer as index.html -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="src/js/data.js"></script>
-    <script src="src/js/database.js"></script>
-    <!-- Then your main script -->
+    <script src="src/js/books.js"></script>
     <script>
-        // Create toast container on load
-        createToastContainer();
+        // Initialize on load
 
         // Initialize tooltips
         const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
@@ -841,8 +873,11 @@
         // Function to load books data
         async function loadBooksData() {
             try {
-                const response = await fetch('src/data/books.json');
+                const response = await fetch('src/api/books.php');
                 const data = await response.json();
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to load books');
+                }
                 booksData = data.books;
                 performSearch(); // Initial search after data is loaded
             } catch (error) {
@@ -852,87 +887,98 @@
         }
 
         // Update the performSearch function
-        function performSearch() {
+        async function performSearch() {
             const query = document.getElementById('searchInput').value.trim().toLowerCase();
             const sortBy = document.getElementById('sortSelect').value;
             const checkedGenres = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
                 .map(cb => cb.value);
 
-            // Filter books based on search query and filters
-            let results = booksData.filter(book => {
-                const matchesQuery = !query || 
-                    book.title.toLowerCase().includes(query) ||
-                    book.author.toLowerCase().includes(query) ||
-                    book.genre.toLowerCase().includes(query) ||
-                    book.description.toLowerCase().includes(query);
+            try {
+                // Fetch current favorites to check status
+                const favResponse = await fetch('src/api/favorites.php');
+                const favData = await favResponse.json();
+                const favoriteIds = favData.success ? favData.favorites.map(f => f.id) : [];
 
-                const matchesGenre = checkedGenres.length === 0 || 
-                    checkedGenres.includes(book.genre);
+                // Filter books based on search query and filters
+                let results = booksData.filter(book => {
+                    const matchesQuery = !query || 
+                        book.title.toLowerCase().includes(query) ||
+                        book.author.toLowerCase().includes(query) ||
+                        book.genre.toLowerCase().includes(query) ||
+                        book.description.toLowerCase().includes(query);
 
-                return matchesQuery && matchesGenre;
-            });
+                    const matchesGenre = checkedGenres.length === 0 || 
+                        checkedGenres.includes(book.genre);
 
-            // Apply sorting
-            results.sort((a, b) => {
-                switch (sortBy) {
-                    case 'title':
-                        return a.title.localeCompare(b.title);
-                    case 'author':
-                        return a.author.localeCompare(b.author);
-                    case 'date':
-                        return new Date(b.publishDate) - new Date(a.publishDate);
-                    case 'rating':
-                        return (b.rating || 0) - (a.rating || 0);
-                    default:
-                        return 0;
-                }
-            });
+                    return matchesQuery && matchesGenre;
+                });
 
-            // Update results count
-            document.getElementById('resultsCount').textContent = results.length;
+                // Apply sorting
+                results.sort((a, b) => {
+                    switch (sortBy) {
+                        case 'title':
+                            return a.title.localeCompare(b.title);
+                        case 'author':
+                            return a.author.localeCompare(b.author);
+                        case 'date':
+                            return new Date(b.publishDate) - new Date(a.publishDate);
+                        case 'rating':
+                            return (b.rating || 0) - (a.rating || 0);
+                        default:
+                            return 0;
+                    }
+                });
 
-            // Render results
-            const resultsContainer = document.getElementById('searchResults');
-            resultsContainer.innerHTML = results.length === 0 ? `
-                <div class="col-12">
-                    <div class="no-results">
-                        <i data-lucide="book-x" style="width: 48px; height: 48px;"></i>
-                        <h3 class="font-playfair">No Results Found</h3>
-                        <p class="text-muted">Try adjusting your search or filters</p>
+                // Update results count
+                document.getElementById('resultsCount').textContent = results.length;
+
+                // Render results
+                const resultsContainer = document.getElementById('searchResults');
+                resultsContainer.innerHTML = results.length === 0 ? `
+                    <div class="col-12">
+                        <div class="no-results">
+                            <i data-lucide="book-x" style="width: 48px; height: 48px;"></i>
+                            <h3 class="font-playfair">No Results Found</h3>
+                            <p class="text-muted">Try adjusting your search or filters</p>
+                        </div>
                     </div>
-                </div>
-            ` : results.map((book, index) => {
-                return `
-                    <div class="fade-in" style="--animation-order: ${index}">
-                        <div class="book-card">
-                            <div class="book-image-container">
-                                <img src="${book.imageUrl}" alt="${book.title}" class="book-image">
-                            </div>
-                            <div class="book-info">
-                                <h3 class="book-title">${book.title}</h3>
-                                <p class="book-author">by ${book.author}</p>
-                                <div class="book-meta">
-                                    <span><i data-lucide="bookmark"></i> ${book.genre}</span>
-                                    <span><i data-lucide="book-copy"></i> ${book.copiesAvailable} available</span>
+                ` : results.map((book, index) => {
+                    const isFavorite = favoriteIds.includes(book.id);
+                    return `
+                        <div class="fade-in" style="--animation-order: ${index}">
+                            <div class="book-card">
+                                <div class="book-image-container">
+                                    <img src="${book.imageUrl}" alt="${book.title}" class="book-image">
                                 </div>
-                                <div class="book-actions">
-                                    <button class="btn vintage-btn" onclick="borrowBook('${book.id}')">
-                                        <i data-lucide="book-marked" class="me-1"></i>
-                                        Borrow
-                                    </button>
-                                    <button class="btn vintage-outline-btn" onclick="toggleFavorite('${book.id}')" 
-                                        title="${book.isFavorite ? 'Remove from favorites' : 'Add to favorites'}">
-                                        <i data-lucide="${book.isFavorite ? 'heart' : 'heart-off'}" class="me-1"></i>
-                                        ${book.isFavorite ? 'Favorited' : 'Favorite'}
-                                    </button>
+                                <div class="book-info">
+                                    <h3 class="book-title">${book.title}</h3>
+                                    <p class="book-author">by ${book.author}</p>
+                                    <div class="book-meta">
+                                        <span><i data-lucide="bookmark"></i> ${book.genre}</span>
+                                        <span><i data-lucide="book-copy"></i> ${book.copiesAvailable} available</span>
+                                    </div>
+                                    <div class="book-actions">
+                                        <button class="btn vintage-btn" onclick="borrowBook('${book.id}')">
+                                            <i data-lucide="book-marked" class="me-1"></i>
+                                            Borrow
+                                        </button>
+                                        <button class="btn vintage-outline-btn ${isFavorite ? 'favorited' : ''}" onclick="toggleFavorite('${book.id}')" 
+                                            title="${isFavorite ? 'Remove from favorites' : 'Add to favorites'}">
+                                            <i data-lucide="${isFavorite ? 'heart' : 'heart-off'}" class="me-1"></i>
+                                            ${isFavorite ? 'Favorited' : 'Favorite'}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                `;
-            }).join('');
-            
-            lucide.createIcons();
+                    `;
+                }).join('');
+                
+                lucide.createIcons();
+            } catch (error) {
+                console.error('Error during search:', error);
+                showToast('Error loading search results');
+            }
         }
 
         // Replace the existing borrowBook function with this
@@ -993,20 +1039,21 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        action: 'add',
-                        bookId: bookId,
-                        bookData: {
-                            title: book.title,
-                            author: book.author,
-                            totalPages: totalPages
-                        }
+                        book_id: bookId,
+                        total_pages: totalPages
                     })
                 });
 
                 const data = await response.json();
                 
                 if (!data.success) {
-                    throw new Error(data.message || 'Failed to add book to reading list');
+                    // Check for specific error about book already in reading list
+                    if (data.error && data.error.includes("already in the reading list")) {
+                        showToast('This book is already in your reading list');
+                        bootstrap.Modal.getInstance(document.getElementById('borrowBookModal')).hide();
+                        return;
+                    }
+                    throw new Error(data.error || data.message || 'Failed to add book to reading list');
                 }
 
                 // Close modal

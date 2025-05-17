@@ -3,83 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Categories - Vintage Library</title>
+    <title>Gallery - Vintage Library</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="src/styles/main.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* Custom tooltip styling */
-        .tooltip {
-            font-family: 'Libre Baskerville', serif;
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-auto-rows: 200px;
+            gap: 1rem;
+            padding: 2rem 0;
         }
-        
-        .tooltip .tooltip-inner {
-            background-color: #8b7355;
+
+        .bento-item {
+            position: relative;
+            border-radius: 1rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .bento-item:hover {
+            transform: scale(1.02);
+        }
+
+        .bento-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.3s ease;
+        }
+
+        .bento-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .bento-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
             color: white;
-            padding: 8px 16px;
-            border-radius: 4px;
-            font-size: 0.875rem;
+            opacity: 0;
+            transition: all 0.3s ease;
         }
 
-        .tooltip.bs-tooltip-top .tooltip-arrow::before {
-            border-top-color: #8b7355;
+        .bento-item:hover .bento-caption {
+            opacity: 1;
         }
 
-        .tooltip.bs-tooltip-bottom .tooltip-arrow::before {
-            border-bottom-color: #8b7355;
+        /* Bento grid layout variations */
+        .wide {
+            grid-column: span 2;
         }
 
-        .hero-section {
-            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
-                        url('src/images/vintage-books.jpg');
+        .tall {
+            grid-row: span 2;
+        }
+
+        .big {
+            grid-column: span 2;
+            grid-row: span 2;
+        }
+
+        .hero {
+            grid-column: span 4;
+            grid-row: span 2;
+        }
+
+        /* Page title styling */
+        .gallery-title {
+            text-align: center;
+            padding: 3rem 0;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.pexels.com/photos/1290141/pexels-photo-1290141.jpeg');
             background-size: cover;
             background-position: center;
-            padding: 4rem 0;
+            color: white;
             margin-bottom: 2rem;
         }
 
-        .category-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
-            height: 100%;
-        }
-
-        .category-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .category-icon {
-            width: 64px;
-            height: 64px;
-            color: #8b7355;
-            margin-bottom: 1.5rem;
-        }
-
-        .category-count {
-            background: rgba(139, 115, 85, 0.1);
-            color: #8b7355;
-            padding: 0.25rem 1rem;
-            border-radius: 20px;
-            font-size: 0.875rem;
+        .gallery-title h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
             margin-bottom: 1rem;
-            display: inline-block;
         }
 
-        .vintage-btn {
-            background-color: #8b7355;
-            color: white;
-            transition: all 0.3s ease;
+        .gallery-title p {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
-        .vintage-btn:hover {
-            background-color: #6d5a43;
-            transform: translateY(-2px);
-            color: white;
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .bento-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .hero {
+                grid-column: span 3;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .bento-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .hero {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .bento-grid {
+                grid-template-columns: 1fr;
+                grid-auto-rows: 250px;
+            }
+            .hero, .wide, .tall, .big {
+                grid-column: span 1;
+                grid-row: span 1;
+            }
         }
 
         /* Favorites Panel Styles */
@@ -193,13 +239,30 @@
             align-items: center;
             justify-content: center;
         }
+
+        /* Toast Styles */
+        .toast-container {
+            z-index: 1050;
+        }
+
+        .toast {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            margin-bottom: 0.5rem;
+        }
+
+        .toast-body {
+            padding: 0.75rem 1rem;
+            color: #2d2d2d;
+        }
     </style>
 </head>
-<body class="d-flex flex-column min-vh-100">
-    <!-- Navigation -->
+<body>
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark custom-nav">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="index.html">
+            <a class="navbar-brand d-flex align-items-center" href="index.php">
                 <i data-lucide="library" class="me-2"></i>
                 <span class="font-playfair">Vintage Library</span>
             </a>
@@ -209,17 +272,17 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="index.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Home">
+                        <a class="nav-link px-2" href="index.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Home">
                             <i data-lucide="home"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="search-results.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Browse Books">
+                        <a class="nav-link px-2" href="search-results.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Browse Books">
                             <i data-lucide="book-open"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2 active" href="categories.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Categories">
+                        <a class="nav-link px-2" href="categories.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Categories">
                             <i data-lucide="list"></i>
                         </a>
                     </li>
@@ -239,37 +302,37 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="reading-list.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Reading List">
+                        <a class="nav-link px-2" href="reading-list.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Reading List">
                             <i data-lucide="list-checks"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="events.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Events">
+                        <a class="nav-link px-2" href="events.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Events">
                             <i data-lucide="calendar"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="gallery.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Gallery">
+                        <a class="nav-link px-2 active" href="gallery.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Gallery">
                             <i data-lucide="image"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="reviews.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Reviews">
+                        <a class="nav-link px-2" href="reviews.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Reviews">
                             <i data-lucide="star"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="add-book.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Book">
+                        <a class="nav-link px-2" href="add-book.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Book">
                             <i data-lucide="plus-circle"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="about.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="About">
+                        <a class="nav-link px-2" href="about.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="About">
                             <i data-lucide="info"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="contact.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Contact">
+                        <a class="nav-link px-2" href="contact.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Contact">
                             <i data-lucide="mail"></i>
                         </a>
                     </li>
@@ -278,92 +341,40 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <header class="hero-section text-center text-white">
+    <!-- Gallery Title Section -->
+    <div class="gallery-title">
         <div class="container">
-            <h1 class="display-4 font-playfair mb-3">Book Categories</h1>
-            <p class="lead">Explore our collection by genre</p>
+            <h1>Library Gallery</h1>
+            <p>Explore the beauty and tranquility of our vintage library through this visual journey</p>
         </div>
-    </header>
+    </div>
 
-    <main class="container py-4 flex-grow-1">
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="category-card p-4 text-center">
-                    <i data-lucide="heart" class="category-icon"></i>
-                    <span class="category-count">24 Books</span>
-                    <h3 class="font-playfair h4 mb-3">Classic Romance</h3>
-                    <p class="text-muted mb-4">Timeless love stories that have captured hearts for generations</p>
-                    <button class="btn vintage-btn w-100" onclick="filterByGenre('Classic Romance')">
-                        Browse Collection
-                    </button>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="category-card p-4 text-center">
-                    <i data-lucide="skull" class="category-icon"></i>
-                    <span class="category-count">18 Books</span>
-                    <h3 class="font-playfair h4 mb-3">Gothic Fiction</h3>
-                    <p class="text-muted mb-4">Dark and mysterious tales of romance and horror</p>
-                    <button class="btn vintage-btn w-100" onclick="filterByGenre('Gothic Fiction')">
-                        Browse Collection
-                    </button>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="category-card p-4 text-center">
-                    <i data-lucide="search" class="category-icon"></i>
-                    <span class="category-count">15 Books</span>
-                    <h3 class="font-playfair h4 mb-3">Mystery</h3>
-                    <p class="text-muted mb-4">Intriguing detective stories and puzzling mysteries</p>
-                    <button class="btn vintage-btn w-100" onclick="filterByGenre('Mystery')">
-                        Browse Collection
-                    </button>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="category-card p-4 text-center">
-                    <i data-lucide="ghost" class="category-icon"></i>
-                    <span class="category-count">12 Books</span>
-                    <h3 class="font-playfair h4 mb-3">Gothic Horror</h3>
-                    <p class="text-muted mb-4">Spine-chilling tales of supernatural and psychological horror</p>
-                    <button class="btn vintage-btn w-100" onclick="filterByGenre('Gothic Horror')">
-                        Browse Collection
-                    </button>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="category-card p-4 text-center">
-                    <i data-lucide="sprout" class="category-icon"></i>
-                    <span class="category-count">20 Books</span>
-                    <h3 class="font-playfair h4 mb-3">Coming-of-age</h3>
-                    <p class="text-muted mb-4">Stories of growth, self-discovery, and life lessons</p>
-                    <button class="btn vintage-btn w-100" onclick="filterByGenre('Coming-of-age')">
-                        Browse Collection
-                    </button>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="category-card p-4 text-center">
-                    <i data-lucide="baby" class="category-icon"></i>
-                    <span class="category-count">16 Books</span>
-                    <h3 class="font-playfair h4 mb-3">Children's Literature</h3>
-                    <p class="text-muted mb-4">Classic tales that have delighted young readers for centuries</p>
-                    <button class="btn vintage-btn w-100" onclick="filterByGenre('Children\'s Literature')">
-                        Browse Collection
-                    </button>
-                </div>
-            </div>
+    <!-- Gallery Grid -->
+    <div class="container">
+        <div class="bento-grid">
+            <div class="bento-item"><img src="https://images.pexels.com/photos/1907785/pexels-photo-1907785.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Vintage Library 1"></div>
+            <div class="bento-item"><img src="https://images.pexels.com/photos/1907784/pexels-photo-1907784.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Vintage Library 2"></div>
+            <div class="bento-item"><img src="https://images.pexels.com/photos/2079451/pexels-photo-2079451.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Vintage Library 3"></div>
+            <div class="bento-item"><img src="https://images.pexels.com/photos/1926988/pexels-photo-1926988.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Vintage Library 4"></div>
+            <div class="bento-item"><img src="https://images.pexels.com/photos/1850022/pexels-photo-1850022.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Vintage Library 5"></div>
+            <div class="bento-item"><img src="https://images.pexels.com/photos/2128249/pexels-photo-2128249.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Vintage Library 6"></div>
+            <div class="bento-item"><img src="https://images.pexels.com/photos/3747505/pexels-photo-3747505.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Vintage Library 7"></div>
+            <div class="bento-item"><img src="https://images.pexels.com/photos/1907786/pexels-photo-1907786.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Vintage Library 8"></div>
+            <div class="bento-item"><img src="https://images.pexels.com/photos/3995842/pexels-photo-3995842.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Vintage Library 9"></div>
+            <div class="bento-item"><img src="https://images.pexels.com/photos/3747503/pexels-photo-3747503.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Vintage Library 10"></div>
+            <div class="bento-item"><img src="https://images.pexels.com/photos/3747517/pexels-photo-3747517.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Vintage Library 11"></div>
+            <div class="bento-item"><img src="https://images.pexels.com/photos/4916244/pexels-photo-4916244.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Vintage Library 12"></div>
+            <div class="bento-item"><img src="https://images.pexels.com/photos/29593734/pexels-photo-29593734/free-photo-of-charming-european-bookshop-with-postcards-display.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Vintage Library 13"></div>
+            <div class="bento-item"><img src="https://images.pexels.com/photos/29589095/pexels-photo-29589095/free-photo-of-cozy-bookstore-with-wooden-ceiling-interior.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Vintage Library 14"></div>
+            <div class="bento-item"><img src="https://images.pexels.com/photos/29586775/pexels-photo-29586775/free-photo-of-cozy-library-aisle-with-books-and-ladder.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Vintage Library 15"></div>
+            <div class="bento-item"><img src="https://images.pexels.com/photos/29545914/pexels-photo-29545914/free-photo-of-library-aisle-with-sunlit-bookshelves-in-talgar.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Vintage Library 16"></div>
+            <div class="bento-item"><img src="https://images.pexels.com/photos/28957745/pexels-photo-28957745/free-photo-of-cozy-vintage-library-corner-with-armchair.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Vintage Library 17"></div>
+            <div class="bento-item"><img src="https://images.pexels.com/photos/8798231/pexels-photo-8798231.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Vintage Library 18"></div>
+            <div class="bento-item"><img src="https://images.pexels.com/photos/1290141/pexels-photo-1290141.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Vintage Library 19"></div>
         </div>
-    </main>
-
-    <div class="toast-container"></div>
-
-    <!-- Same footer as index.html -->
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="src/js/data.js"></script>
-    <script src="src/js/main.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async function() {
             // Initialize tooltips
@@ -454,11 +465,27 @@
             };
         });
 
-        function filterByGenre(genre) {
-            // Store the selected genre in localStorage
-            localStorage.setItem('selectedGenre', genre);
-            // Redirect to index page with filtered results
-            window.location.href = 'index.html?genre=' + encodeURIComponent(genre);
+        function showToast(message) {
+            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+            const toast = document.createElement('div');
+            toast.className = 'toast show';
+            toast.innerHTML = `
+                <div class="toast-body">
+                    ${message}
+                </div>
+            `;
+            toastContainer.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        function createToastContainer() {
+            const container = document.createElement('div');
+            container.id = 'toastContainer';
+            container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+            document.body.appendChild(container);
+            return container;
         }
     </script>
 </body>

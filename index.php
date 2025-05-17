@@ -1,3 +1,38 @@
+<?php
+$servername = "localhost";
+$username = "root";
+$password = "mhmd090"; // If you have a password, replace this
+$dbname = "vintage_library";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Fetch favorites
+$favorites = [];
+$sql_favorites = "SELECT b.id, b.title, b.author, b.image_url FROM favorites f JOIN books b ON f.book_id = b.id ORDER BY f.date_added DESC LIMIT 5";
+// Assuming you want to show the latest 5. Adjust as needed.
+// Also, ensure user context for favorites if you implement user logins later (e.g., WHERE f.user_id = X)
+$result_favorites = $conn->query($sql_favorites);
+if ($result_favorites && $result_favorites->num_rows > 0) {
+    while ($row = $result_favorites->fetch_assoc()) {
+        $favorites[] = $row;
+    }
+}
+
+// Fetch total favorite count
+$total_favorites_count = 0;
+$sql_total_favorites = "SELECT COUNT(*) as count FROM favorites"; // Add user context if needed
+$result_total_favorites = $conn->query($sql_total_favorites);
+if ($result_total_favorites) {
+    $total_favorites_count = $result_total_favorites->fetch_assoc()['count'];
+}
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -312,7 +347,7 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark custom-nav">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="index.html">
+            <a class="navbar-brand d-flex align-items-center" href="index.php">
                 <i data-lucide="library" class="me-2"></i>
                 <span class="font-playfair">Vintage Library</span>
             </a>
@@ -322,24 +357,24 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link px-2 active" href="index.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Home">
+                        <a class="nav-link px-2 active" href="index.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Home">
                             <i data-lucide="home"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="search-results.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Browse Books">
+                        <a class="nav-link px-2" href="search-results.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Browse Books">
                             <i data-lucide="book-open"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="categories.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Categories">
+                        <a class="nav-link px-2" href="categories.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Categories">
                             <i data-lucide="list"></i>
                         </a>
                     </li>
                     <li class="nav-item favorites-container">
                         <a class="nav-link px-2 position-relative" href="#" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Favorites">
                             <i data-lucide="heart"></i>
-                            <span class="favorites-badge" id="favoritesCount">0</span>
+                            <span class="favorites-badge" id="favoritesCount"><?php echo $total_favorites_count; ?></span>
                         </a>
                         <div class="favorites-panel">
                             <div class="favorites-header">
@@ -347,42 +382,63 @@
                                 <small class="text-muted">Recently Added</small>
                             </div>
                             <div id="favoritesList">
-                                <!-- Favorite items will be dynamically added here -->
+                                <?php if (empty($favorites)): ?>
+                                    <div class="favorites-empty">
+                                        <i data-lucide="heart-off" class="mb-2"></i>
+                                        <p class="mb-0">No favorite books yet</p>
+                                    </div>
+                                <?php else: ?>
+                                    <?php foreach ($favorites as $book): ?>
+                                        <div class="favorite-item">
+                                            <img src="<?php echo htmlspecialchars($book['image_url']); ?>" alt="<?php echo htmlspecialchars($book['title']); ?>">
+                                            <div class="favorite-item-info">
+                                                <h6 class="favorite-item-title"><?php echo htmlspecialchars($book['title']); ?></h6>
+                                                <p class="favorite-item-author"><?php echo htmlspecialchars($book['author']); ?></p>
+                                            </div>
+                                            <!-- Basic remove link, assumes a GET request to a handler.
+                                                 For robust POST, a small form per item or JS to POST would be needed.
+                                                 This example redirects to fix-favorites.php which you might need to adapt/create. -->
+                                            <a href="fix-favorites.php?action=remove&book_id=<?php echo $book['id']; ?>&return_url=index.php" class="favorite-item-remove" title="Remove Favorite">
+                                                <i data-lucide="x"></i>
+                                            </a>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="reading-list.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Reading List">
+                        <a class="nav-link px-2" href="reading-list.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Reading List">
                             <i data-lucide="list-checks"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="events.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Events">
+                        <a class="nav-link px-2" href="events.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Events">
                             <i data-lucide="calendar"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="gallery.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Gallery">
+                        <a class="nav-link px-2" href="gallery.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Gallery">
                             <i data-lucide="image"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="reviews.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Reviews">
+                        <a class="nav-link px-2" href="reviews.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Reviews">
                             <i data-lucide="star"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="add-book.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Book">
+                        <a class="nav-link px-2" href="add-book.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Book">
                             <i data-lucide="plus-circle"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="about.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="About">
+                        <a class="nav-link px-2" href="about.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="About">
                             <i data-lucide="info"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="contact.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Contact">
+                        <a class="nav-link px-2" href="contact.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Contact">
                             <i data-lucide="mail"></i>
                         </a>
                     </li>
@@ -401,7 +457,7 @@
             <h1 class="display-4 font-playfair mb-4">Discover Classic Literature</h1>
             <p class="lead text-muted mb-5">Explore our carefully curated collection of timeless masterpieces</p>
             
-            <form id="searchForm" action="search-results.html" class="mx-auto" style="max-width: 600px;">
+            <form id="searchForm" action="search-results.php" class="mx-auto" style="max-width: 600px;">
                 <div class="search-box-large position-relative">
                     <input 
                         type="text" 
@@ -419,10 +475,10 @@
                 <div class="mt-4 text-muted">
                     <p class="mb-2">Popular searches:</p>
                     <div class="d-flex gap-2 justify-content-center flex-wrap">
-                        <a href="search-results.html?genre=Classic Romance" class="badge rounded-pill text-bg-light">Classic Romance</a>
-                        <a href="search-results.html?genre=Gothic Fiction" class="badge rounded-pill text-bg-light">Gothic Fiction</a>
-                        <a href="search-results.html?genre=Mystery" class="badge rounded-pill text-bg-light">Mystery</a>
-                        <a href="search-results.html?genre=Poetry" class="badge rounded-pill text-bg-light">Poetry</a>
+                        <a href="search-results.php?genre=Classic+Romance" class="badge rounded-pill text-bg-light">Classic Romance</a>
+                        <a href="search-results.php?genre=Gothic+Fiction" class="badge rounded-pill text-bg-light">Gothic Fiction</a>
+                        <a href="search-results.php?genre=Mystery" class="badge rounded-pill text-bg-light">Mystery</a>
+                        <a href="search-results.php?genre=Poetry" class="badge rounded-pill text-bg-light">Poetry</a>
                     </div>
                 </div>
             </form>
@@ -431,14 +487,8 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Data -->
-    <script src="src/js/data.js"></script>
-    <!-- Custom JS -->
-    <script src="src/js/auth.js"></script>
-    <script src="src/js/books.js"></script>
-    <script src="src/js/main.js"></script>
-    <!-- Add this after data.js -->
-    <script src="src/js/database.js"></script>
+    <!-- Custom JS for UI interactions like tooltips and Lucide icons, if still needed -->
+    <!-- <script src="src/js/main.js"></script> --> <!-- Assuming main.js might have general UI enhancements not related to data -->
 
     <!-- Updated Footer -->
     <footer class="footer mt-auto">
@@ -473,19 +523,19 @@
                         <ul class="footer-links">
                             <li>
                                 <i data-lucide="chevron-right"></i>
-                                <a href="index.html">Browse Books</a>
+                                <a href="index.php">Browse Books</a>
                             </li>
                             <li>
                                 <i data-lucide="chevron-right"></i>
-                                <a href="categories.html">Categories</a>
+                                <a href="categories.php">Categories</a>
                             </li>
                             <li>
                                 <i data-lucide="chevron-right"></i>
-                                <a href="events.html">Events</a>
+                                <a href="events.php">Events</a>
                             </li>
                             <li>
                                 <i data-lucide="chevron-right"></i>
-                                <a href="about.html">About Us</a>
+                                <a href="about.php">About Us</a>
                             </li>
                         </ul>
                     </div>
@@ -556,155 +606,35 @@
             e.preventDefault();
             const query = document.getElementById('searchInput').value.trim();
             if (query) {
-                window.location.href = `search-results.html?q=${encodeURIComponent(query)}`;
+                window.location.href = `search-results.php?q=${encodeURIComponent(query)}`;
             }
         });
 
-        // Re-initialize icons after any dynamic content changes
+        // Re-initialize icons after any dynamic content changes IF PHP generates new elements with data-lucide attributes
+        // For a fully PHP rendered page, this might only be needed once on load.
         document.addEventListener('DOMContentLoaded', function() {
             lucide.createIcons();
-            updateFavoritesPanel();
+            // updateFavoritesPanel(); // Removed as PHP handles this
         });
 
-        // Function to update favorites panel
-        async function updateFavoritesPanel() {
-            try {
-                const response = await fetch('src/api/favorites.php');
-                const data = await response.json();
-                
-                if (!data.success) {
-                    throw new Error(data.message || 'Failed to load favorites');
-                }
+        // Function to update favorites panel - REMOVED
+        // async function updateFavoritesPanel() { ... }
 
-                const favorites = data.favorites;
-                const favoritesList = document.getElementById('favoritesList');
-                const favoritesCount = document.getElementById('favoritesCount');
-                
-                // Update badge count
-                favoritesCount.textContent = favorites.length;
-                
-                if (favorites.length === 0) {
-                    favoritesList.innerHTML = `
-                        <div class="favorites-empty">
-                            <i data-lucide="heart-off" class="mb-2"></i>
-                            <p class="mb-0">No favorite books yet</p>
-                        </div>
-                    `;
-                    lucide.createIcons();
-                    return;
-                }
+        // Function to remove a favorite - REMOVED
+        // async function removeFavorite(bookId) { ... }
 
-                favoritesList.innerHTML = favorites
-                    .slice(0, 5) // Show only last 5 favorites
-                    .map(book => `
-                        <div class="favorite-item">
-                            <img src="${book.imageUrl}" alt="${book.title}">
-                            <div class="favorite-item-info">
-                                <h6 class="favorite-item-title">${book.title}</h6>
-                                <p class="favorite-item-author">${book.author}</p>
-                            </div>
-                            <button class="favorite-item-remove" onclick="removeFavorite('${book.id}')">
-                                <i data-lucide="x"></i>
-                            </button>
-                        </div>
-                    `).join('');
+        // Function to add a favorite - REMOVED
+        // async function addFavorite(book) { ... }
 
-                lucide.createIcons();
-            } catch (error) {
-                console.error('Error loading favorites:', error);
-                showToast('Error loading favorites');
-            }
-        }
-
-        // Function to remove a favorite
-        async function removeFavorite(bookId) {
-            try {
-                const response = await fetch('src/api/favorites.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        bookId: bookId,
-                        action: 'remove'
-                    })
-                });
-
-                const data = await response.json();
-                
-                if (!data.success) {
-                    throw new Error(data.message || 'Failed to remove favorite');
-                }
-
-                updateFavoritesPanel();
-                showToast('Book removed from favorites');
-            } catch (error) {
-                console.error('Error removing favorite:', error);
-                showToast('Error removing book from favorites');
-            }
-        }
-
-        // Function to add a favorite
-        async function addFavorite(book) {
-            if (!book || !book.id || !book.title || !book.author || !book.imageUrl) {
-                console.error('Invalid book data:', book);
-                return;
-            }
-
-            try {
-                const response = await fetch('src/api/favorites.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        bookId: book.id,
-                        action: 'add',
-                        bookData: {
-                            title: book.title,
-                            author: book.author,
-                            imageUrl: book.imageUrl
-                        }
-                    })
-                });
-
-                const data = await response.json();
-                
-                if (!data.success) {
-                    throw new Error(data.message || 'Failed to add favorite');
-                }
-
-                updateFavoritesPanel();
-                showToast('Book added to favorites');
-            } catch (error) {
-                console.error('Error adding favorite:', error);
-                showToast('Error adding book to favorites');
-            }
-        }
-
-        // Toast notification function
-        function showToast(message) {
-            const toastContainer = document.getElementById('toastContainer') || createToastContainer();
-            const toast = document.createElement('div');
-            toast.className = 'toast show';
-            toast.innerHTML = `
-                <div class="toast-body">
-                    ${message}
-                </div>
-            `;
-            toastContainer.appendChild(toast);
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
-        }
-
-        function createToastContainer() {
-            const container = document.createElement('div');
-            container.id = 'toastContainer';
-            container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
-            document.body.appendChild(container);
-            return container;
-        }
+        // Toast notification function - REMOVED (consider PHP session messages for feedback)
+        // function showToast(message) { ... }
+        // function createToastContainer() { ... }
     </script>
+    <?php
+    // Close the database connection
+    if (isset($conn)) {
+        $conn->close();
+    }
+    ?>
 </body>
 </html>

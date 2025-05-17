@@ -1,3 +1,101 @@
+<?php
+// Database connection
+$servername = "localhost";
+$username = "root";
+$password = "mhmd090";
+$dbname = "vintage_library";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Handle "Borrow" / Add to reading list action
+$message = '';
+if (isset($_GET['action']) && $_GET['action'] === 'add' && isset($_GET['book_id'])) {
+    $book_id = (int)$_GET['book_id'];
+    $return_url = isset($_GET['return_url']) ? $_GET['return_url'] : 'reading-list.php';
+    
+    // Default total_pages to 100 if not provided
+    $total_pages = isset($_GET['total_pages']) ? (int)$_GET['total_pages'] : 100;
+    
+    // Check if the book is already in the reading list
+    $check_sql = "SELECT id FROM reading_list WHERE book_id = ?";
+    $check_stmt = $conn->prepare($check_sql);
+    $check_stmt->bind_param("i", $book_id);
+    $check_stmt->execute();
+    $check_result = $check_stmt->get_result();
+    
+    if ($check_result->num_rows === 0) {
+        // Book is not in reading list yet, add it
+        $add_sql = "INSERT INTO reading_list (book_id, total_pages, current_page) VALUES (?, ?, 0)";
+        $add_stmt = $conn->prepare($add_sql);
+        $add_stmt->bind_param("ii", $book_id, $total_pages);
+        
+        if ($add_stmt->execute()) {
+            // Reduce available copies by 1
+            $update_copies = "UPDATE books SET copies_available = copies_available - 1 WHERE id = ? AND copies_available > 0";
+            $update_stmt = $conn->prepare($update_copies);
+            $update_stmt->bind_param("i", $book_id);
+            $update_stmt->execute();
+            
+            $message = "Book added to your reading list successfully!";
+        } else {
+            $message = "Error adding book to reading list: " . $conn->error;
+        }
+    } else {
+        $message = "This book is already in your reading list.";
+    }
+    
+    // If we came from another page and want to go back there
+    if ($return_url !== 'reading-list.php') {
+        header("Location: $return_url");
+        exit;
+    }
+}
+
+// Fetch current reading list
+$reading_list = [];
+$sql = "SELECT r.*, b.title, b.author, b.image_url, b.genre 
+        FROM reading_list r 
+        JOIN books b ON r.book_id = b.id 
+        ORDER BY r.completed ASC, r.date_added DESC";
+$result = $conn->query($sql);
+
+if ($result && $result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $reading_list[] = $row;
+    }
+}
+
+// Calculate reading statistics
+$total_books = count($reading_list);
+$completed_books = 0;
+$total_pages_read = 0;
+$total_pages_to_read = 0;
+
+foreach ($reading_list as $book) {
+    if ($book['completed']) {
+        $completed_books++;
+    }
+    $total_pages_read += $book['current_page'];
+    $total_pages_to_read += $book['total_pages'];
+}
+
+// Fetch recent favorites for the sidebar
+$favorites = [];
+$favorites_sql = "SELECT b.id, b.title, b.author, b.image_url FROM favorites f JOIN books b ON f.book_id = b.id ORDER BY f.date_added DESC LIMIT 5";
+$favorites_result = $conn->query($favorites_sql);
+if ($favorites_result && $favorites_result->num_rows > 0) {
+    while ($row = $favorites_result->fetch_assoc()) {
+        $favorites[] = $row;
+    }
+}
+$total_favorites = count($favorites);
+?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -218,7 +316,7 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark custom-nav">
       <div class="container">
-        <a class="navbar-brand d-flex align-items-center" href="index.html">
+        <a class="navbar-brand d-flex align-items-center" href="index.php">
           <i data-lucide="library" class="me-2"></i>
           <span class="font-playfair">Vintage Library</span>
         </a>
@@ -227,7 +325,9 @@
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#navbarNav"
-          title="Toggle navigation"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
         >
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -236,7 +336,7 @@
             <li class="nav-item">
               <a
                 class="nav-link px-2"
-                href="index.html"
+                href="index.php"
                 data-bs-toggle="tooltip"
                 data-bs-placement="bottom"
                 title="Home"
@@ -247,7 +347,7 @@
             <li class="nav-item">
               <a
                 class="nav-link px-2"
-                href="search-results.html"
+                href="search-results.php"
                 data-bs-toggle="tooltip"
                 data-bs-placement="bottom"
                 title="Browse Books"
@@ -258,7 +358,7 @@
             <li class="nav-item">
               <a
                 class="nav-link px-2"
-                href="categories.html"
+                href="categories.php"
                 data-bs-toggle="tooltip"
                 data-bs-placement="bottom"
                 title="Categories"
@@ -275,7 +375,7 @@
                 title="Favorites"
               >
                 <i data-lucide="heart"></i>
-                <span class="favorites-badge" id="favoritesCount">0</span>
+                <span class="favorites-badge" id="favoritesCount"><?php echo $total_favorites; ?></span>
               </a>
               <div class="favorites-panel">
                 <div class="favorites-header">
@@ -283,14 +383,32 @@
                   <small class="text-muted">Recently Added</small>
                 </div>
                 <div id="favoritesList">
-                  <!-- Favorite items will be dynamically added here -->
+                  <?php if (empty($favorites)): ?>
+                    <div class="favorites-empty">
+                      <i data-lucide="heart-off" class="mb-2"></i>
+                      <p class="mb-0">No favorite books yet</p>
+                    </div>
+                  <?php else: ?>
+                    <?php foreach ($favorites as $book): ?>
+                      <div class="favorite-item">
+                        <img src="<?php echo htmlspecialchars($book['image_url']); ?>" alt="<?php echo htmlspecialchars($book['title']); ?>">
+                        <div class="favorite-item-info">
+                          <h6 class="favorite-item-title"><?php echo htmlspecialchars($book['title']); ?></h6>
+                          <p class="favorite-item-author"><?php echo htmlspecialchars($book['author']); ?></p>
+                        </div>
+                        <a href="fix-favorites.php?action=remove&book_id=<?php echo $book['id']; ?>&return_url=reading-list.php" class="favorite-item-remove" title="Remove Favorite">
+                          <i data-lucide="x"></i>
+                        </a>
+                      </div>
+                    <?php endforeach; ?>
+                  <?php endif; ?>
                 </div>
               </div>
             </li>
             <li class="nav-item">
               <a
                 class="nav-link px-2 active"
-                href="reading-list.html"
+                href="reading-list.php"
                 data-bs-toggle="tooltip"
                 data-bs-placement="bottom"
                 title="Reading List"
@@ -301,7 +419,7 @@
             <li class="nav-item">
               <a
                 class="nav-link px-2"
-                href="events.html"
+                href="events.php"
                 data-bs-toggle="tooltip"
                 data-bs-placement="bottom"
                 title="Events"
@@ -312,7 +430,7 @@
             <li class="nav-item">
               <a
                 class="nav-link px-2"
-                href="gallery.html"
+                href="gallery.php"
                 data-bs-toggle="tooltip"
                 data-bs-placement="bottom"
                 title="Gallery"
@@ -323,7 +441,7 @@
             <li class="nav-item">
               <a
                 class="nav-link px-2"
-                href="reviews.html"
+                href="reviews.php"
                 data-bs-toggle="tooltip"
                 data-bs-placement="bottom"
                 title="Reviews"
@@ -334,7 +452,7 @@
             <li class="nav-item">
               <a
                 class="nav-link px-2"
-                href="add-book.html"
+                href="add-book.php"
                 data-bs-toggle="tooltip"
                 data-bs-placement="bottom"
                 title="Add Book"
@@ -345,7 +463,7 @@
             <li class="nav-item">
               <a
                 class="nav-link px-2"
-                href="about.html"
+                href="about.php"
                 data-bs-toggle="tooltip"
                 data-bs-placement="bottom"
                 title="About"
@@ -356,7 +474,7 @@
             <li class="nav-item">
               <a
                 class="nav-link px-2"
-                href="contact.html"
+                href="contact.php"
                 data-bs-toggle="tooltip"
                 data-bs-placement="bottom"
                 title="Contact"

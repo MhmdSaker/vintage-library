@@ -109,70 +109,7 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark custom-nav">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="index.html">
-                <i data-lucide="library" class="me-2"></i>
-                <span class="font-playfair">Vintage Library</span>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link px-2" href="index.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Home" aria-label="Home">
-                            <i data-lucide="home" aria-hidden="true"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-2" href="search-results.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Browse Books" aria-label="Browse Books">
-                            <i data-lucide="book-open" aria-hidden="true"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-2" href="categories.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Categories" aria-label="Categories">
-                            <i data-lucide="list" aria-hidden="true"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-2" href="index.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Favorites" aria-label="Favorites">
-                            <i data-lucide="heart" aria-hidden="true"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-2" href="reading-list.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Reading List" aria-label="Reading List">
-                            <i data-lucide="list-checks" aria-hidden="true"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-2" href="events.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Events" aria-label="Events">
-                            <i data-lucide="calendar" aria-hidden="true"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-2" href="gallery.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Gallery" aria-label="Gallery">
-                            <i data-lucide="image" aria-hidden="true"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-2 active" href="reviews.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Reviews" aria-label="Reviews">
-                            <i data-lucide="star" aria-hidden="true"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-2" href="add-book.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Book" aria-label="Add Book">
-                            <i data-lucide="plus-circle" aria-hidden="true"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-2" href="about.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="About" aria-label="About">
-                            <i data-lucide="info" aria-hidden="true"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-2" href="contact.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Contact" aria-label="Contact">
-                            <i data-lucide="mail" aria-hidden="true"></i>
-                        </a>
-                    </li>
+                        <a class="navbar-brand d-flex align-items-center" href="index.php">                <i data-lucide="library" class="me-2"></i>                <span class="font-playfair">Vintage Library</span>            </a>            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">                <span class="navbar-toggler-icon"></span>            </button>            <div class="collapse navbar-collapse" id="navbarNav">                <ul class="navbar-nav me-auto">                    <li class="nav-item">                        <a class="nav-link px-2" href="index.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Home" aria-label="Home">                            <i data-lucide="home" aria-hidden="true"></i>                        </a>                    </li>                    <li class="nav-item">                        <a class="nav-link px-2" href="search-results.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Browse Books" aria-label="Browse Books">                            <i data-lucide="book-open" aria-hidden="true"></i>                        </a>                    </li>                    <li class="nav-item">                        <a class="nav-link px-2" href="categories.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Categories" aria-label="Categories">                            <i data-lucide="list" aria-hidden="true"></i>                        </a>                    </li>                    <li class="nav-item">                        <a class="nav-link px-2" href="index.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Favorites" aria-label="Favorites">                            <i data-lucide="heart" aria-hidden="true"></i>                        </a>                    </li>                    <li class="nav-item">                        <a class="nav-link px-2" href="reading-list.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Reading List" aria-label="Reading List">                            <i data-lucide="list-checks" aria-hidden="true"></i>                        </a>                    </li>                    <li class="nav-item">                        <a class="nav-link px-2" href="events.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Events" aria-label="Events">                            <i data-lucide="calendar" aria-hidden="true"></i>                        </a>                    </li>                    <li class="nav-item">                        <a class="nav-link px-2" href="gallery.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Gallery" aria-label="Gallery">                            <i data-lucide="image" aria-hidden="true"></i>                        </a>                    </li>                    <li class="nav-item">                        <a class="nav-link px-2 active" href="reviews.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Reviews" aria-label="Reviews">                            <i data-lucide="star" aria-hidden="true"></i>                        </a>                    </li>                    <li class="nav-item">                        <a class="nav-link px-2" href="add-book.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Book" aria-label="Add Book">                            <i data-lucide="plus-circle" aria-hidden="true"></i>                        </a>                    </li>                    <li class="nav-item">                        <a class="nav-link px-2" href="about.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="About" aria-label="About">                            <i data-lucide="info" aria-hidden="true"></i>                        </a>                    </li>                    <li class="nav-item">                        <a class="nav-link px-2" href="contact.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Contact" aria-label="Contact">                            <i data-lucide="mail" aria-hidden="true"></i>                        </a>                    </li>
                 </ul>
             </div>
         </div>

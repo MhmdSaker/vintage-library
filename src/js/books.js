@@ -152,25 +152,45 @@ async function addToReadingList(bookId) {
 // Function to handle favorites
 async function toggleFavorite(bookId) {
     try {
-        const response = await fetch('src/api/favorites.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                bookId: bookId,
-                action: 'toggle'
-            })
-        });
+        // Find the favorite button to update it immediately for better UX
+        const button = document.querySelector(`button[onclick="toggleFavorite('${bookId}')"]`);
+        const iconElement = button?.querySelector('[data-lucide]');
+        const isCurrentlyFavorite = iconElement?.getAttribute('data-lucide') === 'heart';
+        
+        // Update the button UI immediately
+        if (button && iconElement) {
+            if (isCurrentlyFavorite) {
+                iconElement.setAttribute('data-lucide', 'heart-off');
+                button.classList.remove('favorited');
+            } else {
+                iconElement.setAttribute('data-lucide', 'heart');
+                button.classList.add('favorited');
+            }
+            // Reinitialize Lucide icon
+            lucide.createIcons({ icons: { [isCurrentlyFavorite ? 'heart-off' : 'heart']: iconElement } });
+        }
+        
+        // Use direct-favorite.php instead for more reliable updates
+        const newStatus = isCurrentlyFavorite ? 0 : 1;
+        const response = await fetch(`direct-favorite.php?id=${bookId}&status=${newStatus}`);
         
         const data = await response.json();
         
         if (data.success) {
             showToast('Favorites updated!');
-            // Reload books to show updated favorite status
-            loadBooks();
+            // No need to reload all books - we've already updated the button
+            console.log('Database updated successfully:', data.message);
         } else {
             showToast(data.error || 'Failed to update favorites.');
+            // Revert the UI change if there was an error
+            if (button && iconElement) {
+                if (isCurrentlyFavorite) {
+                    iconElement.setAttribute('data-lucide', 'heart');
+                } else {
+                    iconElement.setAttribute('data-lucide', 'heart-off');
+                }
+                lucide.createIcons({ icons: { [isCurrentlyFavorite ? 'heart' : 'heart-off']: iconElement } });
+            }
         }
     } catch (error) {
         console.error('Error toggling favorite:', error);

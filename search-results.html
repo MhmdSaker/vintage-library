@@ -873,13 +873,54 @@
         // Function to load books data
         async function loadBooksData() {
             try {
+                // Load books data from API
                 const response = await fetch('src/api/books.php');
                 const data = await response.json();
                 if (!data.success) {
                     throw new Error(data.error || 'Failed to load books');
                 }
-                booksData = data.books;
-                performSearch(); // Initial search after data is loaded
+                
+                // Normalize the data structure
+                booksData = data.books.map(book => {
+                    return {
+                        id: book.id,
+                        title: book.title,
+                        author: book.author,
+                        genre: book.genre,
+                        imageUrl: book.image_url,
+                        description: book.description,
+                        copiesAvailable: book.copies_available,
+                        is_favorite: book.is_favorite == 1,
+                        language: book.language,
+                        condition: book.condition,
+                        format: book.format,
+                        publishDate: book.publish_date,
+                        // Ensure we have both camelCase and snake_case for compatibility
+                        image_url: book.image_url,
+                        copies_available: book.copies_available,
+                        publish_date: book.publish_date
+                    };
+                });
+                
+                // Load favorites to ensure they're correctly marked
+                const favResponse = await fetch('src/api/favorites.php');
+                const favData = await favResponse.json();
+                
+                if (favData.success && favData.favorites && favData.favorites.length > 0) {
+                    // Update favorite status in books data
+                    favData.favorites.forEach(fav => {
+                        const book = booksData.find(b => b.id == fav.id);
+                        if (book) {
+                            book.is_favorite = true;
+                        }
+                    });
+                }
+                
+                // Update favorites panel
+                updateFavoritesPanel();
+                
+                // Initial search after data is loaded
+                performSearch();
             } catch (error) {
                 console.error('Error loading books data:', error);
                 showToast('Error loading books data. Please try again later.');
@@ -894,18 +935,13 @@
                 .map(cb => cb.value);
 
             try {
-                // Fetch current favorites to check status
-                const favResponse = await fetch('src/api/favorites.php');
-                const favData = await favResponse.json();
-                const favoriteIds = favData.success ? favData.favorites.map(f => f.id) : [];
-
                 // Filter books based on search query and filters
                 let results = booksData.filter(book => {
                     const matchesQuery = !query || 
                         book.title.toLowerCase().includes(query) ||
                         book.author.toLowerCase().includes(query) ||
                         book.genre.toLowerCase().includes(query) ||
-                        book.description.toLowerCase().includes(query);
+                        (book.description && book.description.toLowerCase().includes(query));
 
                     const matchesGenre = checkedGenres.length === 0 || 
                         checkedGenres.includes(book.genre);
@@ -921,7 +957,7 @@
                         case 'author':
                             return a.author.localeCompare(b.author);
                         case 'date':
-                            return new Date(b.publishDate) - new Date(a.publishDate);
+                            return new Date(b.publishDate || b.publish_date) - new Date(a.publishDate || a.publish_date);
                         case 'rating':
                             return (b.rating || 0) - (a.rating || 0);
                         default:
@@ -943,19 +979,25 @@
                         </div>
                     </div>
                 ` : results.map((book, index) => {
-                    const isFavorite = favoriteIds.includes(book.id);
+                    // Ensure the favorite status is properly determined
+                    const isFavorite = book.is_favorite === 1 || book.is_favorite === true;
+                    
+                    // Handle both camelCase and snake_case properties
+                    const imageUrl = book.imageUrl || book.image_url || '';
+                    const copies = book.copiesAvailable || book.copies_available || 0;
+                    
                     return `
                         <div class="fade-in" style="--animation-order: ${index}">
                             <div class="book-card">
                                 <div class="book-image-container">
-                                    <img src="${book.imageUrl}" alt="${book.title}" class="book-image">
+                                    <img src="${imageUrl}" alt="${book.title}" class="book-image">
                                 </div>
                                 <div class="book-info">
                                     <h3 class="book-title">${book.title}</h3>
                                     <p class="book-author">by ${book.author}</p>
                                     <div class="book-meta">
                                         <span><i data-lucide="bookmark"></i> ${book.genre}</span>
-                                        <span><i data-lucide="book-copy"></i> ${book.copiesAvailable} available</span>
+                                        <span><i data-lucide="book-copy"></i> ${copies} available</span>
                                     </div>
                                     <div class="book-actions">
                                         <button class="btn vintage-btn" onclick="borrowBook('${book.id}')">
@@ -1062,6 +1104,19 @@
                 // Update UI
                 book.copiesAvailable--;
                 showToast('Book added to your reading list!');
+                
+                // Update book data in database
+                fetch('src/api/books.php', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: bookId,
+                        copiesAvailable: book.copiesAvailable
+                    })
+                });
+                
                 performSearch(); // Refresh the display
             } catch (error) {
                 console.error('Error adding book to reading list:', error);
@@ -1139,23 +1194,31 @@
         async function toggleFavorite(bookId) {
             const book = booksData.find(b => b.id === bookId);
             if (!book) return;
+            
+            // Find the button that was clicked to update it immediately
+            const buttons = document.querySelectorAll(`button[onclick="toggleFavorite('${bookId}')"]`);
+            const currentIsFavorite = book.is_favorite === true || book.is_favorite === 1;
+            
+            // Optimistically update UI
+            buttons.forEach(button => {
+                if (currentIsFavorite) {
+                    button.classList.remove('favorited');
+                    button.innerHTML = `<i data-lucide="heart-off" class="me-1"></i> Favorite`;
+                    button.title = 'Add to favorites';
+                } else {
+                    button.classList.add('favorited');
+                    button.innerHTML = `<i data-lucide="heart" class="me-1"></i> Favorited`;
+                    button.title = 'Remove from favorites';
+                }
+            });
+            
+            // Initialize the Lucide icons on the updated buttons
+            lucide.createIcons();
 
             try {
-                const response = await fetch('src/api/favorites.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        bookId: book.id,
-                        action: 'toggle',
-                        bookData: {
-                            title: book.title,
-                            author: book.author,
-                            imageUrl: book.imageUrl
-                        }
-                    })
-                });
+                // Use direct-favorite.php instead for more reliable updates
+                const newStatus = currentIsFavorite ? 0 : 1;
+                const response = await fetch(`direct-favorite.php?id=${book.id}&status=${newStatus}`);
 
                 const data = await response.json();
                 
@@ -1163,12 +1226,33 @@
                     throw new Error(data.message || 'Failed to toggle favorite');
                 }
 
+                // Update book data in memory
+                book.is_favorite = !currentIsFavorite;
+                
+                // Update favorites panel
                 updateFavoritesPanel();
                 showToast(data.message);
-                performSearch(); // Refresh the display
+                
+                // No need to refresh the entire display as we've already updated the button
             } catch (error) {
                 console.error('Error toggling favorite:', error);
                 showToast('Error updating favorites');
+                
+                // Revert the UI changes if the API call failed
+                buttons.forEach(button => {
+                    if (currentIsFavorite) {
+                        button.classList.add('favorited');
+                        button.innerHTML = `<i data-lucide="heart" class="me-1"></i> Favorited`;
+                        button.title = 'Remove from favorites';
+                    } else {
+                        button.classList.remove('favorited');
+                        button.innerHTML = `<i data-lucide="heart-off" class="me-1"></i> Favorite`;
+                        button.title = 'Add to favorites';
+                    }
+                });
+                
+                // Reinitialize the Lucide icons
+                lucide.createIcons();
             }
         }
 
@@ -1202,20 +1286,32 @@
 
                 favoritesList.innerHTML = favorites
                     .slice(0, 5) // Show only last 5 favorites
-                    .map(book => `
-                        <div class="favorite-item">
-                            <img src="${book.imageUrl}" alt="${book.title}">
-                            <div class="favorite-item-info">
-                                <h6 class="favorite-item-title">${book.title}</h6>
-                                <p class="favorite-item-author">${book.author}</p>
+                    .map(book => {
+                        // Handle both camelCase and snake_case property names
+                        const imageUrl = book.imageUrl || book.image_url;
+                        return `
+                            <div class="favorite-item">
+                                <img src="${imageUrl}" alt="${book.title}">
+                                <div class="favorite-item-info">
+                                    <h6 class="favorite-item-title">${book.title}</h6>
+                                    <p class="favorite-item-author">${book.author}</p>
+                                </div>
+                                <button class="favorite-item-remove" onclick="removeFavorite('${book.id}')">
+                                    <i data-lucide="x"></i>
+                                </button>
                             </div>
-                            <button class="favorite-item-remove" onclick="removeFavorite('${book.id}')">
-                                <i data-lucide="x"></i>
-                            </button>
-                        </div>
-                    `).join('');
+                        `;
+                    }).join('');
 
                 lucide.createIcons();
+                
+                // Update favorite status in the local books data
+                favorites.forEach(favoriteBook => {
+                    const localBook = booksData.find(b => b.id == favoriteBook.id);
+                    if (localBook) {
+                        localBook.is_favorite = true;
+                    }
+                });
             } catch (error) {
                 console.error('Error updating favorites panel:', error);
                 showToast('Error loading favorites');
@@ -1224,17 +1320,47 @@
 
         // Function to remove favorite
         async function removeFavorite(bookId) {
+            // First update the UI by removing the item from the favorites panel
+            const favoriteItem = document.querySelector(`.favorite-item button[onclick="removeFavorite('${bookId}')"]`).closest('.favorite-item');
+            if (favoriteItem) {
+                favoriteItem.style.height = favoriteItem.offsetHeight + 'px';
+                favoriteItem.style.opacity = '0';
+                favoriteItem.style.transform = 'translateX(20px)';
+                favoriteItem.style.transition = 'all 0.3s ease';
+                
+                // Wait for animation to complete
+                setTimeout(() => {
+                    favoriteItem.style.height = '0px';
+                    favoriteItem.style.padding = '0';
+                    favoriteItem.style.margin = '0';
+                    
+                    // Remove after second animation
+                    setTimeout(() => {
+                        favoriteItem.remove();
+                        
+                        // Update the count
+                        const favoritesCount = document.getElementById('favoritesCount');
+                        const currentCount = parseInt(favoritesCount.textContent) - 1;
+                        favoritesCount.textContent = currentCount;
+                        
+                        // Show empty state if needed
+                        if (currentCount === 0) {
+                            const favoritesList = document.getElementById('favoritesList');
+                            favoritesList.innerHTML = `
+                                <div class="favorites-empty">
+                                    <i data-lucide="heart-off" class="mb-2"></i>
+                                    <p class="mb-0">No favorite books yet</p>
+                                </div>
+                            `;
+                            lucide.createIcons();
+                        }
+                    }, 300);
+                }, 300);
+            }
+            
             try {
-                const response = await fetch('src/api/favorites.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        bookId: bookId,
-                        action: 'remove'
-                    })
-                });
+                // Use direct-favorite.php for reliable database update
+                const response = await fetch(`direct-favorite.php?id=${bookId}&status=0`);
 
                 const data = await response.json();
                 
@@ -1242,19 +1368,30 @@
                     throw new Error(data.message || 'Failed to remove favorite');
                 }
 
-                // Update the UI
-                updateFavoritesPanel();
                 showToast('Book removed from favorites');
                 
                 // Update the favorite button state in search results if present
                 const book = booksData.find(b => b.id === bookId);
                 if (book) {
-                    book.isFavorite = false;
-                    performSearch(); // Refresh the display
+                    book.is_favorite = false;
+                    
+                    // Update any visible buttons for this book
+                    const buttons = document.querySelectorAll(`button[onclick="toggleFavorite('${bookId}')"]`);
+                    buttons.forEach(button => {
+                        button.classList.remove('favorited');
+                        button.innerHTML = `<i data-lucide="heart-off" class="me-1"></i> Favorite`;
+                        button.title = 'Add to favorites';
+                    });
+                    
+                    // Initialize the Lucide icons on the updated buttons
+                    lucide.createIcons();
                 }
             } catch (error) {
                 console.error('Error removing favorite:', error);
                 showToast('Error removing favorite');
+                
+                // If there was an error, refresh the favorites panel to restore the correct state
+                updateFavoritesPanel();
             }
         }
 

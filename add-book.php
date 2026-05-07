@@ -204,6 +204,12 @@
         .toast-body {
             padding: 0.75rem 1rem;
         }
+
+        .demo-fill-btn {
+            font-size: 0.85rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+        }
     </style>
 </head>
 <body>
@@ -301,6 +307,18 @@
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <div class="form-card p-5">
+                    <div class="d-flex justify-content-end align-items-center gap-2 mb-3">
+                        <select class="form-select form-select-sm" id="demoPresetSelect" style="max-width: 230px;" title="Choose demo preset">
+                            <option value="pride-prejudice">Classic Romance Demo</option>
+                            <option value="dracula">Gothic Horror Demo</option>
+                            <option value="sherlock">Mystery Demo</option>
+                            <option value="little-prince">Children's Literature Demo</option>
+                        </select>
+                        <button type="button" class="btn btn-outline-secondary demo-fill-btn" id="demoFillBtn">
+                            <i data-lucide="wand-sparkles" class="me-1"></i>
+                            Fill Demo
+                        </button>
+                    </div>
                     <form id="addBookForm" class="needs-validation" novalidate>
                         <div class="row g-4">
                             <div class="col-md-6">

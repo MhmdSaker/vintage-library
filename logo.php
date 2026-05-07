@@ -62,7 +62,7 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark custom-nav">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="index.html">
+            <a class="navbar-brand d-flex align-items-center" href="index.php">
                 <i data-lucide="library" class="me-2"></i>
                 <span class="font-playfair">Vintage Library</span>
             </a>
@@ -72,32 +72,32 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="index.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Home">
+                        <a class="nav-link px-2" href="index.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Home">
                             <i data-lucide="home"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="search-results.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Browse Books">
+                        <a class="nav-link px-2" href="search-results.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Browse Books">
                             <i data-lucide="book-open"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="categories.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Categories">
+                        <a class="nav-link px-2" href="categories.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Categories">
                             <i data-lucide="list"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="events.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Events">
+                        <a class="nav-link px-2" href="events.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Events">
                             <i data-lucide="calendar"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="about.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="About">
+                        <a class="nav-link px-2" href="about.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="About">
                             <i data-lucide="info"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="contact.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Contact">
+                        <a class="nav-link px-2" href="contact.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Contact">
                             <i data-lucide="mail"></i>
                         </a>
                     </li>

@@ -27,7 +27,7 @@ async function updateReadingList() {
                     <i data-lucide="book-x" style="width: 48px; height: 48px; color: #8b7355;"></i>
                     <h3 class="font-playfair mt-3">Your Reading List is Empty</h3>
                     <p class="text-muted">Start adding books to your reading list!</p>
-                    <a href="index.html" class="btn vintage-btn mt-3">Browse Books</a>
+                    <a href="index.php" class="btn vintage-btn mt-3">Browse Books</a>
                 </div>
             `;
             lucide.createIcons();
@@ -36,14 +36,20 @@ async function updateReadingList() {
 
         // Generate reading list items
         readingList.innerHTML = books.map(book => {
-            // Calculate percentage for progress bar
-            const percentComplete = book.total_pages > 0 
-                ? Math.floor((book.current_page / book.total_pages) * 100) 
+            const totalPages = Number(book.total_pages) || 0;
+            const parsedCurrentPage = Number(book.current_page);
+            const currentPage = Number.isFinite(parsedCurrentPage) ? parsedCurrentPage : 0;
+            const isCompleted = Number(book.completed) === 1 || book.completed === true;
+
+            // Keep rendered values safe and consistent with API data.
+            const safeCurrentPage = Math.max(0, Math.min(currentPage, totalPages || currentPage));
+            const percentComplete = totalPages > 0
+                ? Math.max(0, Math.min(100, Math.floor((safeCurrentPage / totalPages) * 100)))
                 : 0;
             
-            const completedClass = book.completed ? 'completed' : '';
-            const statusLabel = book.completed ? 'Completed' : 'In Progress';
-            const statusClass = book.completed ? 'completed' : '';
+            const completedClass = isCompleted ? 'completed' : '';
+            const statusLabel = isCompleted ? 'Completed' : 'In Progress';
+            const statusClass = isCompleted ? 'completed' : '';
             
             return `
                 <div class="reading-list-item ${completedClass} p-4">
@@ -62,22 +68,22 @@ async function updateReadingList() {
                             
                             <div class="d-flex align-items-center mt-3">
                                 <label class="me-2" for="page-${book.id}">Page:</label>
-                                <input type="number" class="page-input me-2" value="${book.current_page}" 
-                                       min="0" max="${book.total_pages}" 
+                                <input type="number" class="page-input me-2" value="${safeCurrentPage}" 
+                                       min="0" max="${totalPages}" 
                                        id="page-${book.id}" 
-                                       ${book.completed ? 'disabled' : ''}>
-                                <span class="text-muted">of ${book.total_pages}</span>
+                                       ${isCompleted ? 'disabled' : ''}>
+                                <span class="text-muted">of ${totalPages}</span>
                                 
                                 <div class="ms-auto">
                                     <button class="btn btn-sm vintage-outline-btn" 
                                             onclick="updateProgress('${book.id}')" 
-                                            ${book.completed ? 'disabled' : ''}>
+                                            ${isCompleted ? 'disabled' : ''}>
                                         Update
                                     </button>
                                     
-                                    <button class="btn btn-sm ${book.completed ? 'btn-outline-secondary' : 'vintage-btn'}" 
-                                            onclick="markCompleted('${book.id}', ${!book.completed})">
-                                        ${book.completed ? 'Mark as In Progress' : 'Mark as Completed'}
+                                    <button class="btn btn-sm ${isCompleted ? 'btn-outline-secondary' : 'vintage-btn'}" 
+                                            onclick="markCompleted('${book.id}', ${!isCompleted})">
+                                        ${isCompleted ? 'Mark as In Progress' : 'Mark as Completed'}
                                     </button>
                                 </div>
                             </div>
@@ -160,8 +166,10 @@ function calculateOverallProgress(books) {
     if (!books || books.length === 0) return 0;
     
     const totalProgress = books.reduce((acc, book) => {
-        const progress = book.total_pages > 0 
-            ? book.current_page / book.total_pages 
+        const totalPages = Number(book.total_pages) || 0;
+        const currentPage = Number(book.current_page) || 0;
+        const progress = totalPages > 0
+            ? Math.max(0, Math.min(1, currentPage / totalPages))
             : 0;
         return acc + progress;
     }, 0);

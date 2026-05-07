@@ -1,6 +1,7 @@
 <?php
 // This is a super simple script to toggle book favorite status directly in the database
 header('Content-Type: application/json');
+require_once __DIR__ . '/src/api/db_connect.php';
 
 // Get parameters
 $bookId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
@@ -19,15 +20,10 @@ if ($status !== 0 && $status !== 1) {
 }
 
 try {
-    // Database connection parameters
-    $host = 'localhost';
-    $dbname = 'vintage_library';
-    $username = 'root';
-    $password = 'mhmd090';
-    
-    // Create database connection
-    $conn = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $conn = connectDB();
+    if (!$conn) {
+        throw new PDOException('Could not connect to database');
+    }
     
     // Begin transaction to ensure consistency between tables
     $conn->beginTransaction();

@@ -1,16 +1,8 @@
 <?php
-// Database connection
-$servername = "localhost";
-$username = "root";
-$password = "mhmd090";
-$dbname = "vintage_library";
-
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+require_once __DIR__ . '/src/api/db_connect.php';
+$conn = connectMySQLi();
+if (!$conn) {
+    renderDbConnectionErrorPage();
 }
 
 // Handle "Borrow" / Add to reading list action
@@ -140,6 +132,8 @@ $total_favorites = count($favorites);
       .book-progress .progress-bar {
         background-color: #8b7355;
         border-radius: 4px;
+        height: 100%;
+        transition: width 0.3s ease;
       }
 
       .book-status {

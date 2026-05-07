@@ -128,8 +128,13 @@ function updateReadingListItem($conn) {
             returnJSON(['success' => false, 'error' => 'Reading list item ID is required'], 400);
         }
         
+        // Normalize boolean-like input to database-safe integer (0/1).
+        if (array_key_exists('completed', $data)) {
+            $data['completed'] = normalizeCompletedValue($data['completed']);
+        }
+
         // Get book details if marking as completed to set current_page to total_pages
-        if (isset($data['completed']) && $data['completed'] && !isset($data['current_page'])) {
+        if (isset($data['completed']) && (int)$data['completed'] === 1 && !isset($data['current_page'])) {
             $getBookStmt = $conn->prepare("SELECT total_pages FROM reading_list WHERE id = :id");
             $getBookStmt->bindParam(':id', $data['id']);
             $getBookStmt->execute();
@@ -157,7 +162,7 @@ function updateReadingListItem($conn) {
         
         if (isset($data['completed'])) {
             $sql .= "completed = :completed, ";
-            $params[':completed'] = $data['completed'];
+            $params[':completed'] = (int)$data['completed'];
         }
         
         // Remove trailing comma and space
@@ -180,6 +185,35 @@ function updateReadingListItem($conn) {
     } catch (PDOException $e) {
         returnJSON(['success' => false, 'error' => 'Failed to update reading list item: ' . $e->getMessage()], 500);
     }
+}
+
+/**
+ * Convert mixed completed values (bool/int/string/empty) into 0 or 1.
+ */
+function normalizeCompletedValue($value) {
+    if (is_bool($value)) {
+        return $value ? 1 : 0;
+    }
+
+    if ($value === null) {
+        return 0;
+    }
+
+    if (is_int($value)) {
+        return $value > 0 ? 1 : 0;
+    }
+
+    if (is_string($value)) {
+        $normalized = strtolower(trim($value));
+        if ($normalized === '' || $normalized === '0' || $normalized === 'false' || $normalized === 'no' || $normalized === 'off') {
+            return 0;
+        }
+        if ($normalized === '1' || $normalized === 'true' || $normalized === 'yes' || $normalized === 'on') {
+            return 1;
+        }
+    }
+
+    return (int)((bool)$value);
 }
 
 // Function to remove a book from the reading list

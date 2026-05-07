@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="src/styles/main.css">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <style>
-        /* Update navbar styles to match index.html exactly */
+        /* Update navbar styles to match index.php exactly */
         .custom-nav {
             background-color: #2d2d2d;
             padding: 0.5rem 0;
@@ -71,7 +71,7 @@
             padding: 0.75rem 1.25rem !important;
         }
 
-        /* Add the same styles as index.html */
+        /* Add the same styles as index.php */
         .book-card {
             background: white;
             border-radius: 12px;
@@ -150,7 +150,7 @@
         }
 
         /* Add the favorites panel styles */
-        /* ... (copy the favorites panel styles from index.html) ... */
+        /* ... (copy the favorites panel styles from index.php) ... */
 
         /* Favorites Panel Styles */
         .favorites-panel {
@@ -299,10 +299,10 @@
     </style>
 </head>
 <body>
-    <!-- Update the navbar structure to match index.html exactly -->
+    <!-- Update the navbar structure to match index.php exactly -->
     <nav class="navbar navbar-expand-lg navbar-dark custom-nav">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="index.html">
+            <a class="navbar-brand d-flex align-items-center" href="index.php">
                 <i data-lucide="library" class="me-2"></i>
                 <span class="font-playfair">Vintage Library</span>
             </a>
@@ -312,17 +312,17 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="index.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Home">
+                        <a class="nav-link px-2" href="index.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Home">
                             <i data-lucide="home"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="search-results.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Browse Books">
+                        <a class="nav-link px-2" href="search-results.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Browse Books">
                             <i data-lucide="book-open"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="categories.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Categories">
+                        <a class="nav-link px-2" href="categories.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Categories">
                             <i data-lucide="list"></i>
                         </a>
                     </li>
@@ -342,42 +342,42 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="reading-list.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Reading List">
+                        <a class="nav-link px-2" href="reading-list.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Reading List">
                             <i data-lucide="list-checks"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="events.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Events">
+                        <a class="nav-link px-2" href="events.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Events">
                             <i data-lucide="calendar"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="gallery.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Gallery">
+                        <a class="nav-link px-2" href="gallery.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Gallery">
                             <i data-lucide="image"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="reviews.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Reviews">
+                        <a class="nav-link px-2" href="reviews.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Reviews">
                             <i data-lucide="star"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="add-book.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Book">
+                        <a class="nav-link px-2" href="add-book.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Book">
                             <i data-lucide="plus-circle"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2 active" href="remove-books.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Remove Books">
+                        <a class="nav-link px-2 active" href="remove-books.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Remove Books">
                             <i data-lucide="trash-2"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="about.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="About">
+                        <a class="nav-link px-2" href="about.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="About">
                             <i data-lucide="info"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="contact.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Contact">
+                        <a class="nav-link px-2" href="contact.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Contact">
                             <i data-lucide="mail"></i>
                         </a>
                     </li>
@@ -400,11 +400,10 @@
         </div>
     </main>
 
-    <!-- Copy the footer from index.html -->
+    <!-- Copy the footer from index.php -->
     <!-- ... footer code ... -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="src/js/data.js"></script>
     <script src="src/js/favorites.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -463,13 +462,13 @@
                 booksGrid.innerHTML = data.books.map(book => `
                     <div class="col-sm-6 col-md-4 col-lg-3 mb-4">
                         <div class="book-card h-100">
-                            <img src="${book.imageUrl || 'src/images/default-book.jpg'}" alt="${book.title}" class="book-image">
+                            <img src="${book.image_url || 'src/images/default-book.jpg'}" alt="${book.title}" class="book-image">
                             <div class="book-info d-flex flex-column">
                                 <h5 class="book-title">${book.title}</h5>
                                 <p class="book-author">by ${book.author}</p>
                                 <div class="book-meta mt-auto">
                                     <span>${book.genre}</span>
-                                    <span>${book.copiesAvailable} copies</span>
+                                    <span>${book.copies_available} copies</span>
                                 </div>
                                 <button class="remove-btn mt-3" onclick="removeBook('${book.id}', '${book.title.replace(/'/g, "\\'")}')">
                                     <i data-lucide="trash-2" class="me-2"></i>

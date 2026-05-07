@@ -1,15 +1,8 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "mhmd090"; // If you have a password, replace this
-$dbname = "vintage_library";
-
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+require_once __DIR__ . '/src/api/db_connect.php';
+$conn = connectMySQLi();
+if (!$conn) {
+    renderDbConnectionErrorPage();
 }
 
 // Fetch favorites

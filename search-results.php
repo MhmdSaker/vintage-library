@@ -1,16 +1,8 @@
 <?php
-// Database connection
-$servername = "localhost";
-$username = "root";
-$password = "mhmd090"; // If you have a password, replace this
-$dbname = "vintage_library";
-
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+require_once __DIR__ . '/src/api/db_connect.php';
+$conn = connectMySQLi();
+if (!$conn) {
+    renderDbConnectionErrorPage();
 }
 
 // Get search parameters
@@ -265,7 +257,9 @@ $results_count = count($books);
             background: linear-gradient(rgba(139, 115, 85, 0.1), rgba(139, 115, 85, 0.05));
             padding: 2rem;
             border-radius: 20px;
-            margin-bottom: 3rem;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto 3rem;
         }
 
         .search-input-group {
@@ -273,9 +267,9 @@ $results_count = count($books);
             border-radius: 50px;
             padding: 0.5rem;
             box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
-            display: flex;
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto auto;
             align-items: center;
-            flex-wrap: wrap;
             gap: 0.5rem;
         }
 
@@ -283,9 +277,28 @@ $results_count = count($books);
             border: none;
             padding: 0.8rem 1.5rem;
             font-size: 1.1rem;
-            flex: 1 1 250px;
-            min-width: 0;
+            width: 100%;
             background: transparent;
+            text-align: left;
+        }
+
+        .search-input::placeholder {
+            text-align: left;
+        }
+
+        .search-input-group i[data-lucide="search"] {
+            margin-left: 0.75rem !important;
+        }
+
+        #sortSelect {
+            width: auto;
+            min-width: 170px;
+            white-space: nowrap;
+        }
+
+        .search-input-group .btn {
+            margin-right: 0.5rem !important;
+            white-space: nowrap;
         }
 
         .search-input:focus {
@@ -301,6 +314,7 @@ $results_count = count($books);
             }
 
             .search-input-group {
+                display: flex;
                 padding: 0.5rem;
                 flex-direction: column;
                 border-radius: 15px;
@@ -343,19 +357,20 @@ $results_count = count($books);
             }
 
             .search-input-group {
-                flex-wrap: wrap;
+                grid-template-columns: auto minmax(0, 1fr) auto;
             }
 
             .search-input {
-                flex: 1 1 200px;
+                grid-column: 2 / 4;
             }
 
             #sortSelect {
-                flex: 1 1 150px;
+                min-width: 150px;
             }
 
             .search-input-group .btn {
-                flex: 0 0 auto;
+                grid-column: 3 / 4;
+                justify-self: end;
             }
         }
 

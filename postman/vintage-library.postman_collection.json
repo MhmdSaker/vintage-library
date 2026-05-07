@@ -1,0 +1,355 @@
+{
+  "info": {
+    "_postman_id": "f53729fa-0a30-4d7c-bf3a-64318ec9e627",
+    "name": "Vintage Library API",
+    "description": "Postman collection for Vintage Library PHP endpoints in src/api.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "bookId", "value": "1" },
+    { "key": "readingListId", "value": "1" },
+    { "key": "reviewId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Books",
+      "item": [
+        {
+          "name": "List Books",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/src/api/books.php", "host": ["{{baseUrl}}"], "path": ["src", "api", "books.php"] },
+            "description": "GET all books."
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+            "const json = pm.response.json();",
+            "pm.test('Has success and books[]', function () { pm.expect(json.success).to.eql(true); pm.expect(json.books).to.be.an('array'); });"
+          ]}}],
+          "response": []
+        },
+        {
+          "name": "Get Book By ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/src/api/books.php?id={{bookId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["src", "api", "books.php"],
+              "query": [{ "key": "id", "value": "{{bookId}}" }]
+            },
+            "description": "GET single book by id query param."
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 200 or 404', function () { pm.expect([200,404]).to.include(pm.response.code); });",
+            "const json = pm.response.json();",
+            "if (pm.response.code === 200) { pm.test('Book payload exists', function () { pm.expect(json.success).to.eql(true); pm.expect(json.book).to.be.an('object'); }); }",
+            "if (pm.response.code === 404) { pm.test('Error payload exists', function () { pm.expect(json.success).to.eql(false); pm.expect(json.error).to.exist; }); }"
+          ]}}],
+          "response": []
+        },
+        {
+          "name": "Create Book (books.php)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/src/api/books.php", "host": ["{{baseUrl}}"], "path": ["src", "api", "books.php"] },
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"The Old Bookshop\",\n  \"author\": \"R. Winters\",\n  \"genre\": \"Fiction\",\n  \"publishDate\": \"1998\",\n  \"imageUrl\": \"src/images/default-book.jpg\",\n  \"copiesAvailable\": 3,\n  \"description\": \"A classic small-town mystery.\",\n  \"condition\": \"Good\",\n  \"language\": \"English\",\n  \"format\": \"Hardcover\",\n  \"isFavorite\": false\n}" },
+            "description": "Create a book via books.php."
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 201', function () { pm.response.to.have.status(201); });",
+            "const json = pm.response.json();",
+            "pm.test('Create response shape', function () { pm.expect(json.message).to.include('Book added'); pm.expect(json.id).to.exist; });",
+            "if (json.id) { pm.collectionVariables.set('bookId', String(json.id)); }"
+          ]}}],
+          "response": []
+        },
+        {
+          "name": "Update Book",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/src/api/books.php", "host": ["{{baseUrl}}"], "path": ["src", "api", "books.php"] },
+            "body": { "mode": "raw", "raw": "{\n  \"id\": \"{{bookId}}\",\n  \"title\": \"The Old Bookshop (Updated)\",\n  \"copiesAvailable\": 5,\n  \"isFavorite\": true\n}" },
+            "description": "Update fields for a book. id is required in JSON body."
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 200 or 404', function () { pm.expect([200,404]).to.include(pm.response.code); });",
+            "const json = pm.response.json();",
+            "pm.test('Has message or error', function () { pm.expect(json.message || json.error).to.exist; });"
+          ]}}],
+          "response": []
+        },
+        {
+          "name": "Delete Book",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/src/api/books.php?id={{bookId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["src", "api", "books.php"],
+              "query": [{ "key": "id", "value": "{{bookId}}" }]
+            },
+            "description": "Delete a book by id query param."
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 200 or 404', function () { pm.expect([200,404]).to.include(pm.response.code); });",
+            "const json = pm.response.json();",
+            "pm.test('Delete shape has message/error', function () { pm.expect(json.message || json.error).to.exist; });"
+          ]}}],
+          "response": []
+        },
+        {
+          "name": "Create Book (add-book.php)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/src/api/add-book.php", "host": ["{{baseUrl}}"], "path": ["src", "api", "add-book.php"] },
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"The Library Lantern\",\n  \"author\": \"M. Saker\",\n  \"isbn\": \"978-1-4028-9462-6\",\n  \"genre\": \"History\",\n  \"description\": \"Stories from forgotten shelves.\",\n  \"publicationDate\": \"2004\",\n  \"imageUrl\": \"src/images/default-book.jpg\",\n  \"copiesAvailable\": 2,\n  \"language\": \"English\",\n  \"format\": \"Paperback\",\n  \"condition\": \"Very Good\"\n}" },
+            "description": "Strict add endpoint. Requires title/author/isbn/genre/description."
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 201 or 400', function () { pm.expect([201,400]).to.include(pm.response.code); });",
+            "const json = pm.response.json();",
+            "if (pm.response.code === 201) { pm.test('Created shape', function () { pm.expect(json.success).to.eql(true); pm.expect(json.book.id).to.exist; }); }",
+            "if (pm.response.code === 400) { pm.test('Validation shape', function () { pm.expect(json.success).to.eql(false); pm.expect(json.message).to.exist; }); }"
+          ]}}],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Favorites",
+      "item": [
+        {
+          "name": "List Favorites",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/src/api/favorites.php", "host": ["{{baseUrl}}"], "path": ["src", "api", "favorites.php"] }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+            "const json = pm.response.json();",
+            "pm.test('Favorites payload', function () { pm.expect(json.success).to.eql(true); pm.expect(json.favorites).to.be.an('array'); });"
+          ]}}],
+          "response": []
+        },
+        {
+          "name": "Add Favorite",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/src/api/favorites.php", "host": ["{{baseUrl}}"], "path": ["src", "api", "favorites.php"] },
+            "body": { "mode": "raw", "raw": "{\n  \"bookId\": \"{{bookId}}\",\n  \"action\": \"add\"\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 200/400/404', function () { pm.expect([200,400,404]).to.include(pm.response.code); });",
+            "const json = pm.response.json();",
+            "pm.test('Action response shape', function () { pm.expect(json.success).to.be.a('boolean'); pm.expect(json.message || json.error).to.exist; });"
+          ]}}],
+          "response": []
+        },
+        {
+          "name": "Remove Favorite",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/src/api/favorites.php", "host": ["{{baseUrl}}"], "path": ["src", "api", "favorites.php"] },
+            "body": { "mode": "raw", "raw": "{\n  \"bookId\": \"{{bookId}}\",\n  \"action\": \"remove\"\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 200/400/404', function () { pm.expect([200,400,404]).to.include(pm.response.code); });",
+            "const json = pm.response.json();",
+            "pm.test('Response has boolean success', function () { pm.expect(json.success).to.be.a('boolean'); });"
+          ]}}],
+          "response": []
+        },
+        {
+          "name": "Toggle Favorite",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/src/api/favorites.php", "host": ["{{baseUrl}}"], "path": ["src", "api", "favorites.php"] },
+            "body": { "mode": "raw", "raw": "{\n  \"bookId\": \"{{bookId}}\",\n  \"action\": \"toggle\"\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 200/400/404', function () { pm.expect([200,400,404]).to.include(pm.response.code); });",
+            "const json = pm.response.json();",
+            "pm.test('Toggle returns new_status on success', function () { if (json.success) { pm.expect([0,1]).to.include(json.new_status); } });"
+          ]}}],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reading List",
+      "item": [
+        {
+          "name": "List Reading List",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/src/api/reading-list.php", "host": ["{{baseUrl}}"], "path": ["src", "api", "reading-list.php"] }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+            "const json = pm.response.json();",
+            "pm.test('Reading list payload', function () { pm.expect(json.success).to.eql(true); pm.expect(json.books).to.be.an('array'); });",
+            "if (json.books && json.books.length) { pm.collectionVariables.set('readingListId', String(json.books[0].id)); }"
+          ]}}],
+          "response": []
+        },
+        {
+          "name": "Add To Reading List",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/src/api/reading-list.php", "host": ["{{baseUrl}}"], "path": ["src", "api", "reading-list.php"] },
+            "body": { "mode": "raw", "raw": "{\n  \"book_id\": \"{{bookId}}\",\n  \"total_pages\": 320,\n  \"current_page\": 15,\n  \"completed\": false\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 201/400/404', function () { pm.expect([201,400,404]).to.include(pm.response.code); });",
+            "const json = pm.response.json();",
+            "if (pm.response.code === 201) { pm.test('Added successfully', function () { pm.expect(json.success).to.eql(true); pm.expect(json.id).to.exist; }); pm.collectionVariables.set('readingListId', String(json.id)); }"
+          ]}}],
+          "response": []
+        },
+        {
+          "name": "Update Reading List Item",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/src/api/reading-list.php", "host": ["{{baseUrl}}"], "path": ["src", "api", "reading-list.php"] },
+            "body": { "mode": "raw", "raw": "{\n  \"id\": \"{{readingListId}}\",\n  \"current_page\": 120,\n  \"completed\": \"false\"\n}" },
+            "description": "completed can be bool/int/string-like values."
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 200/400/404', function () { pm.expect([200,400,404]).to.include(pm.response.code); });",
+            "const json = pm.response.json();",
+            "pm.test('Has message or error', function () { pm.expect(json.message || json.error).to.exist; });"
+          ]}}],
+          "response": []
+        },
+        {
+          "name": "Mark Reading Item Completed",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/src/api/reading-list.php", "host": ["{{baseUrl}}"], "path": ["src", "api", "reading-list.php"] },
+            "body": { "mode": "raw", "raw": "{\n  \"id\": \"{{readingListId}}\",\n  \"completed\": true\n}" },
+            "description": "When completed=true and current_page omitted, API sets current_page to total_pages."
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 200/400/404', function () { pm.expect([200,400,404]).to.include(pm.response.code); });",
+            "const json = pm.response.json();",
+            "pm.test('Has message or error', function () { pm.expect(json.message || json.error).to.exist; });"
+          ]}}],
+          "response": []
+        },
+        {
+          "name": "Remove From Reading List",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/src/api/reading-list.php?id={{readingListId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["src", "api", "reading-list.php"],
+              "query": [{ "key": "id", "value": "{{readingListId}}" }]
+            }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 200 or 404', function () { pm.expect([200,404]).to.include(pm.response.code); });",
+            "const json = pm.response.json();",
+            "pm.test('Delete shape has message/error', function () { pm.expect(json.message || json.error).to.exist; });"
+          ]}}],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reviews",
+      "item": [
+        {
+          "name": "List All Reviews",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/src/api/reviews.php", "host": ["{{baseUrl}}"], "path": ["src", "api", "reviews.php"] }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+            "const json = pm.response.json();",
+            "pm.test('Has reviews array', function () { pm.expect(json.reviews).to.be.an('array'); });",
+            "if (json.reviews && json.reviews.length) { pm.collectionVariables.set('reviewId', String(json.reviews[0].id)); }"
+          ]}}],
+          "response": []
+        },
+        {
+          "name": "List Reviews By Book",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/src/api/reviews.php?book_id={{bookId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["src", "api", "reviews.php"],
+              "query": [{ "key": "book_id", "value": "{{bookId}}" }]
+            }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+            "const json = pm.response.json();",
+            "pm.test('Has reviews array', function () { pm.expect(json.reviews).to.be.an('array'); });"
+          ]}}],
+          "response": []
+        },
+        {
+          "name": "Add Review",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/src/api/reviews.php", "host": ["{{baseUrl}}"], "path": ["src", "api", "reviews.php"] },
+            "body": { "mode": "raw", "raw": "{\n  \"book_id\": \"{{bookId}}\",\n  \"reviewer_name\": \"API Tester\",\n  \"rating\": 5,\n  \"comment\": \"Great restoration quality.\"\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 201/400/404', function () { pm.expect([201,400,404]).to.include(pm.response.code); });",
+            "const json = pm.response.json();",
+            "if (pm.response.code === 201) { pm.test('Created shape', function () { pm.expect(json.message).to.include('Review added'); pm.expect(json.id).to.exist; }); pm.collectionVariables.set('reviewId', String(json.id)); }"
+          ]}}],
+          "response": []
+        },
+        {
+          "name": "Update Review",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/src/api/reviews.php", "host": ["{{baseUrl}}"], "path": ["src", "api", "reviews.php"] },
+            "body": { "mode": "raw", "raw": "{\n  \"id\": \"{{reviewId}}\",\n  \"rating\": 4,\n  \"comment\": \"Updated comment from Postman.\"\n}" }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 200/400/404', function () { pm.expect([200,400,404]).to.include(pm.response.code); });",
+            "const json = pm.response.json();",
+            "pm.test('Has message or error', function () { pm.expect(json.message || json.error).to.exist; });"
+          ]}}],
+          "response": []
+        },
+        {
+          "name": "Delete Review",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/src/api/reviews.php?id={{reviewId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["src", "api", "reviews.php"],
+              "query": [{ "key": "id", "value": "{{reviewId}}" }]
+            }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status is 200 or 404', function () { pm.expect([200,404]).to.include(pm.response.code); });",
+            "const json = pm.response.json();",
+            "pm.test('Delete shape has message/error', function () { pm.expect(json.message || json.error).to.exist; });"
+          ]}}],
+          "response": []
+        }
+      ]
+    }
+  ]
+}

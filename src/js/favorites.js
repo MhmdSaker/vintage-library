@@ -1,9 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    if (!currentUser) {
-        window.location.href = 'index.html';
-        return;
-    }
-
     renderFavoriteBooks();
 });
 
@@ -30,7 +25,7 @@ async function renderFavoriteBooks() {
                 <div class="col-12 text-center py-5">
                     <h3 class="font-playfair mb-3">No Favorite Books</h3>
                     <p class="text-muted mb-4">You haven't added any books to your favorites yet.</p>
-                    <a href="index.html" class="btn vintage-btn">
+                    <a href="index.php" class="btn vintage-btn">
                         <i data-lucide="book-open" class="me-2"></i>
                         Browse Books
                     </a>

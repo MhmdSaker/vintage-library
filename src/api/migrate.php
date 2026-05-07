@@ -273,5 +273,5 @@ if (!$reviewsMigrated) {
 // Migration summary
 echo "<h2>Migration Complete</h2>";
 echo "<p>Database migration has been completed.</p>";
-echo "<p>You can now access the application at <a href='index.html'>Vintage Library</a>.</p>";
+echo "<p>You can now access the application at <a href='index.php'>Vintage Library</a>.</p>";
 ?> 

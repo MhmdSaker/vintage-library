@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About - Vintage Library</title>
-    <!-- Same CSS imports as index.html -->
+    <!-- Same CSS imports as index.php -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="src/styles/main.css">
@@ -14,7 +14,7 @@
     <!-- Navigation will be updated in all files -->
     <nav class="navbar navbar-expand-lg navbar-dark custom-nav">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="index.html">
+            <a class="navbar-brand d-flex align-items-center" href="index.php">
                 <i data-lucide="library" class="me-2"></i>
                 <span class="font-playfair">Vintage Library</span>
             </a>
@@ -24,57 +24,57 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link px-2 active" href="index.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Home">
+                        <a class="nav-link px-2 active" href="index.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Home">
                             <i data-lucide="home"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="search-results.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Browse Books">
+                        <a class="nav-link px-2" href="search-results.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Browse Books">
                             <i data-lucide="book-open"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="categories.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Categories">
+                        <a class="nav-link px-2" href="categories.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Categories">
                             <i data-lucide="list"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="favorites.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Favorites">
+                        <a class="nav-link px-2" href="index.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Favorites">
                             <i data-lucide="heart"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="reading-list.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Reading List">
+                        <a class="nav-link px-2" href="reading-list.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Reading List">
                             <i data-lucide="list-checks"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="events.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Events">
+                        <a class="nav-link px-2" href="events.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Events">
                             <i data-lucide="calendar"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="gallery.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Gallery">
+                        <a class="nav-link px-2" href="gallery.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Gallery">
                             <i data-lucide="image"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="reviews.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Reviews">
+                        <a class="nav-link px-2" href="reviews.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Reviews">
                             <i data-lucide="star"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="add-book.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Book">
+                        <a class="nav-link px-2" href="add-book.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Add Book">
                             <i data-lucide="plus-circle"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active px-2" href="about.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="About">
+                        <a class="nav-link active px-2" href="about.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="About">
                             <i data-lucide="info"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link px-2" href="contact.html" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Contact">
+                        <a class="nav-link px-2" href="contact.php" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Contact">
                             <i data-lucide="mail"></i>
                         </a>
                     </li>
@@ -123,7 +123,7 @@
         </div>
     </main>
 
-    <!-- Same scripts as index.html -->
+    <!-- Same scripts as index.php -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="src/js/data.js"></script>
     <script src="src/js/auth.js"></script>

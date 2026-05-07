@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     // Set active nav item based on current page
-    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const currentPage = window.location.pathname.split('/').pop() || 'index.php';
     console.log(window.location.pathname)
     const navLinks = document.querySelectorAll('.nav-link');
     
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Load books if we're on the homepage
-    if (window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/')) {
+    if (window.location.pathname.endsWith('index.php') || window.location.pathname.endsWith('/')) {
         renderBooks();
     }
 });

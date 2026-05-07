@@ -1,11 +1,6 @@
 <?php
 // Script to check and fix database issues with favorites and handle add/remove actions
-
-// Database connection parameters
-$host = 'localhost';
-$dbname = 'vintage_library';
-$username = 'root';
-$password = 'mhmd090';
+require_once __DIR__ . '/src/api/db_connect.php';
 
 // Check if we have an action and book_id
 $action = isset($_GET['action']) ? $_GET['action'] : null;
@@ -27,9 +22,10 @@ if (isset($_GET['return_url']) && isset($_SERVER['QUERY_STRING'])) {
 }
 
 try {
-    // Create database connection
-    $conn = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $conn = connectDB();
+    if (!$conn) {
+        throw new PDOException('Could not connect to database');
+    }
     
     // Handle add/remove actions
     if ($action && $book_id > 0) {

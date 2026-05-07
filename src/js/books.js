@@ -121,7 +121,7 @@ async function borrowBook(bookId) {
             
             // Redirect to reading list page
             setTimeout(() => {
-                window.location.href = 'reading-list.html';
+                window.location.href = 'reading-list.php';
             }, 1500);
         } else {
             showToast(data.error || 'Failed to add book to reading list.');
